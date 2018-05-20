@@ -1,13 +1,16 @@
 {
-  "name": "client",
+  "name": "perch",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
+    "start:client:dev": "ng serve",
+    "build:client": "rimraf dist/client && cd client && ng build",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "build:server": "rimraf dist/server && cd server && tsc",
+    "start:server": "node dist/server/server.js",
+    "test:server": "cd server && ts-node ../node_modules/jasmine/bin/jasmine --config=jasmine.json"
   },
   "private": true,
   "dependencies": {
@@ -20,20 +23,25 @@
     "@angular/platform-browser": "^6.0.2",
     "@angular/platform-browser-dynamic": "^6.0.2",
     "@angular/router": "^6.0.2",
+    "@types/express": "^4.11.1",
+    "@types/mongodb": "^3.0.18",
     "core-js": "^2.5.4",
+    "dotenv": "^5.0.1",
+    "express": "^4.16.3",
+    "mongodb": "^3.1.0-beta4",
     "rxjs": "^6.0.0",
     "zone.js": "^0.8.26"
   },
   "devDependencies": {
-    "@angular/compiler-cli": "^6.0.2",
     "@angular-devkit/build-angular": "~0.6.3",
-    "typescript": "~2.7.2",
     "@angular/cli": "~6.0.3",
+    "@angular/compiler-cli": "^6.0.2",
     "@angular/language-service": "^6.0.2",
-    "@types/jasmine": "~2.8.6",
+    "@types/jasmine": "^2.8.7",
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "~8.9.4",
     "codelyzer": "~4.2.1",
+    "jasmine": "^3.1.0",
     "jasmine-core": "~2.99.1",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "~1.7.1",
@@ -42,7 +50,9 @@
     "karma-jasmine": "~1.1.1",
     "karma-jasmine-html-reporter": "^0.2.2",
     "protractor": "~5.3.0",
-    "ts-node": "~5.0.1",
-    "tslint": "~5.9.1"
+    "rimraf": "^2.6.2",
+    "ts-node": "^5.0.1",
+    "tslint": "~5.9.1",
+    "typescript": "~2.7.2"
   }
 }
