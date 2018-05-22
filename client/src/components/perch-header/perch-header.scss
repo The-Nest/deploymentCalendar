@@ -2,24 +2,21 @@
     display: flex;
     text-align: center;
     font-size: 1.5rem;
-    padding: 0.5rem;
-    background: #0373E0;
+    padding: 0.5rem 0;
+    background:rgba(3, 115, 224,0.9);
     color: #ffffff;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     max-height: 2rem;
+    justify-content: space-between;
 
     .icon-area {
-        flex: 1;
-        fill: #ffffff;
+        padding: 0 2%;
+        min-width: 5%;
     }
     .title-area {
-        flex: 8;
-        .add-icon {
-            fill: #ffffff;
-        }
+        min-width: 50%;
     }
-    
 }
