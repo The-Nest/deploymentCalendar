@@ -1,0 +1,73 @@
+[
+  {
+    "name": "Feature: Leave the nest",
+    "repo": {
+      "name": "spizaetus",
+      "url": "https://github.com/perch/spizaetus"
+    },
+    "team": {
+      "name": "Eagle",
+      "id": 1
+    },
+    "branches": [
+      {
+        "name": "ornatus",
+        "pullRequest": {
+          "id": 123,
+          "status": 1,
+          "assignee": {
+            "firstName": "Sharon",
+            "lastName": "Rogers",
+            "id": "11111"
+          }
+        },
+        "deleted": false
+      },
+      {
+        "name": "tyrannus",
+        "pullRequest": {
+          "id": 125,
+          "status": 2,
+          "assignee": {
+            "firstName": "Daniel",
+            "lastName": "Diaz",
+          "id": "22222"
+          }
+        },
+        "deleted": false
+      },
+      {
+        "name": "isidori",
+        "pullRequest": null,
+        "deleted": false
+      }
+    ],
+    "integrationBranch": {
+      "name": "int-10-29-18",
+      "pullRequest": {
+        "id": 123,
+        "status": 0,
+        "assignee": {
+          "firstName": "Sharon",
+          "lastName": "Rogers",
+          "id": "11111"
+        }
+      },
+      "deleted": false
+    },
+    "owner": {
+      "firstName": "Edward",
+      "lastName": "Davis",
+      "id": "33333"
+    },
+    "dateTime": "2018-11-29T20:30:00.000Z",
+    "teamLocation": "in-office",
+    "qa": [
+      {
+        "firstName": "Julie",
+        "lastName": "Coleman",
+        "id": "44444"
+      }
+    ]
+  }
+]

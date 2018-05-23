@@ -1,4 +1,4 @@
 export interface IRepository {
   name: string;
-  url: string;
+  owner: string;
 }
