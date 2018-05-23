@@ -1,23 +1,46 @@
 import * as express from 'express';
 import * as path from 'path';
 import * as dotenv from 'dotenv';
+import * as bodyParser from 'body-parser';
+import { MongoClient } from 'mongodb';
+
 import { AppController } from './controllers/app/app.controller';
-import { MongoDBClient } from './clients/mongodb-client';
-import { deploymentsControllerFactory } from './controllers/api/deployments/deployments.controller';
-import { mockDeploymentsControllerFactory } from './controllers/api/deployments/mock-deployments.controller';
+import { DeploymentsControllerFactory } from './controllers/api/deployments/deployments.controller';
+import { MembersControllerFactory } from './controllers/api/members/members.controller';
+import { ExceptionHandler } from './middleware/exception-handler';
+import { MongoCollectionClient } from './clients/mongodb/mongo-collection.client';
+import { GitHubClient } from './clients/github/github.client';
+import { IDeployment } from '../shared/types/deployment/deployment';
+import { IMember } from '../shared/types/member/member';
+import { DeploymentsService } from './services/deployments.service';
+import { MembersService } from './services/members.service';
+import { DeploymentsRepository } from './repositories/deployments.repository';
+import { MembersRepository } from './repositories/members.repository';
+
 
 async function init() {
   dotenv.config();
+  const gitHubClient = new GitHubClient();
+  const mongoClient = await(new MongoClient(process.env.COSMOSDB_KEY).connect());
+
+  const deploymentsRepository = new DeploymentsRepository(
+    new MongoCollectionClient<IDeployment>(mongoClient.db('perch').collection('deployments')));
+  const membersRepository = new MembersRepository(
+    new MongoCollectionClient<IMember>(mongoClient.db('perch').collection('members')));
+
+  const deploymentsService = new DeploymentsService(deploymentsRepository, membersRepository, gitHubClient);
+  const membersService = new MembersService(membersRepository);
+
   const app: express.Application = express();
+  app.use(bodyParser.json());
   app.use(express.static(path.join(__dirname, '../client')));
-  if (process.env.COSMOSDB_KEY !== undefined && !process.env.USE_MOCK_API) {
-    const dbClient = new MongoDBClient();
-    await dbClient.connect(process.env.COSMOSDB_KEY);
-    app.use('/api', deploymentsControllerFactory(dbClient));
-  } else {
-    app.use('/api', mockDeploymentsControllerFactory());
-  }
-  app.use('*',   AppController);
+  app.use(
+    '/api',
+    DeploymentsControllerFactory(deploymentsService, membersRepository, gitHubClient),
+    MembersControllerFactory(membersService)
+  );
+  app.use('*', AppController);
+  app.use(ExceptionHandler);
 
   const port = 3001;
   app.listen(port, () => console.log(`server started on localhost:${port}`));

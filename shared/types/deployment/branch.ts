@@ -1,9 +1,8 @@
-import { ITeamMember } from '../team/team-member';
 import { IPullRequest } from './pull-request';
+import { IDeploymentMember } from './member';
 
-export interface IDeploymentBranch {
+export interface IBranch {
   name: string;
   pullRequest?: IPullRequest;
-  assignee: ITeamMember;
   deleted: boolean;
 }
