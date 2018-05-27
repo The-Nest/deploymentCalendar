@@ -20,3 +20,20 @@
         min-width: 50%;
     }
 }
+
+.nav {
+    position: absolute;
+    top: 0;
+    left: -80%;
+    width: 80%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+}
+.nav-open-annimation {
+    transition: 1s;
+    left: 0%;
+}
+.nav-close-annimation {
+    transition: 1s;
+    left: -80%;
+}

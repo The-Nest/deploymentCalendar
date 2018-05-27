@@ -1,0 +1,17 @@
+<div class="perch-nav">
+    <div class="nav-element"
+        [routerLink]="homeUrl"
+        (click)="closeNav.emit()">
+        All Deploymnets
+    </div>
+    <div class="nav-element"
+        [routerLink]="createUrl"
+        (click)="closeNav.emit()">
+        Create a Deployment
+    </div>
+    <div class="nav-element"
+        (click)="closeNav.emit()">
+        Logout
+    </div>
+</div>
+

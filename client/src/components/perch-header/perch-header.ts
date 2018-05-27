@@ -12,4 +12,9 @@ export class PerchHeader {
   
   public homeUrl = this._linkHelper.homeUrl();  
   public createUrl = this._linkHelper.deploymentCreate();
+  public displayNav: boolean = false;
+
+  public toggleNav(){
+    this.displayNav = !this.displayNav;
+  }
 }
