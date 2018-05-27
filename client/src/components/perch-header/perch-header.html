@@ -1,6 +1,8 @@
 <div class="header-container">
     <div class="icon-area">
-        
+        <div (click)="toggleNav()">
+            Menu
+        </div>
     </div>
 
     <div class="title-area"
@@ -13,3 +15,8 @@
         +
     </div>
 </div>
+
+<perch-navigation class="nav"
+    [ngClass]="{'nav-open-annimation': displayNav, 'nav-close-annimation' : !displayNav}"
+    (closeNav)="toggleNav()">
+</perch-navigation>

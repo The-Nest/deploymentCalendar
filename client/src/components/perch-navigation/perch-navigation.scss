@@ -1,0 +1,13 @@
+.perch-nav {
+    .nav-element {
+        padding: 1rem;
+        border-bottom: 1px solid #ffffff;
+    }
+    .nav-element:hover {
+        cursor: pointer;
+        background: #000000;
+    }
+    .nav-element:last-child {
+        border-bottom: 0px;
+    }
+}
