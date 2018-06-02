@@ -4,8 +4,8 @@ import { PerchAllDeploymentsPage } from 'src/containers/allDeploymentsPage/perch
 import { PerchCreateDeploymentPage } from 'src/containers/createDeploymentPage/perch-create-deployment-page.';
 
 const appRoutes: Routes = [
-  { path: '', 
-    component: PerchHomePage 
+  { path: '',
+    component: PerchHomePage
   },
   { path: 'deployment/all',
     component: PerchAllDeploymentsPage

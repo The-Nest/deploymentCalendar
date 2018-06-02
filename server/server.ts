@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as dotenv from 'dotenv';
 import * as bodyParser from 'body-parser';
 import { MongoClient } from 'mongodb';
+import * as cors from 'cors';
 
 import { AppController } from './controllers/app/app.controller';
 import { DeploymentsControllerFactory } from './controllers/api/deployments/deployments.controller';
@@ -32,6 +33,7 @@ async function init() {
   const membersService = new MembersService(membersRepository);
 
   const app: express.Application = express();
+  app.use(cors());
   app.use(bodyParser.json());
   app.use(express.static(path.join(__dirname, '../client')));
   app.use(

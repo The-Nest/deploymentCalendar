@@ -1,11 +1,11 @@
 <div class="calendar-card">
     <div class="gradient-container">
-        <span class="text1">23</span>
-        <span class="text2">JUN</span>
+        <span class="text1">{{deploymentSummary.dateTime | date: [ 'dd' ]}}</span>
+        <span class="text2">{{deploymentSummary.dateTime | date: [ 'MMM' ] | uppercase}}</span>
     </div>
     <div class="card-content">
-        <span class="text1">Online Mobile 70293</span>
-        <span class="text2">James Donlan</span>
+        <span class="text1">{{deploymentSummary.name}}</span>
+        <span class="text2">{{deploymentSummary.owner.firstName}} {{deploymentSummary.owner.lastName}}</span>
         <span class="text3">KBB ICO</span>
     </div>
 </div>
