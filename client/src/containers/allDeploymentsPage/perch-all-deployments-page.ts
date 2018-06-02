@@ -6,4 +6,4 @@ import { Component } from '@angular/core';
   styleUrls: ['./perch-all-deployments-page.scss']
 })
 
-export class PerchAllDeploymentsPage {}
+export class PerchAllDeploymentsPage { }

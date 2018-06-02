@@ -8,6 +8,8 @@ import { PerchAllDeploymentsPage } from '../containers/allDeploymentsPage/perch-
 import { Routing } from '../../routes/routes';
 import { PerchCreateDeploymentPage } from '../containers/createDeploymentPage/perch-create-deployment-page.';
 import { LinkHelper } from '../services/link-helper/link-helper';
+import { HttpClientModule } from '@angular/common/http';
+import { PerchCalendarCard } from '../components/perch-calendar-card/perch-calendar-card';
 
 @NgModule({
   declarations: [
@@ -15,11 +17,13 @@ import { LinkHelper } from '../services/link-helper/link-helper';
     PerchHeader,
     PerchHomePage,
     PerchAllDeploymentsPage,
-    PerchCreateDeploymentPage
+    PerchCreateDeploymentPage,
+    PerchCalendarCard
   ],
   imports: [
     BrowserModule,
-    Routing
+    Routing,
+    HttpClientModule
   ],
   providers: [LinkHelper],
   bootstrap: [Perch]
