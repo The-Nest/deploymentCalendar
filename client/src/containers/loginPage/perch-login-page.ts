@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { LinkHelper } from '../../services/link-helper/link-helper';
 
 @Component({
   selector: 'perch-login-page',
@@ -6,4 +7,8 @@ import { Component } from '@angular/core';
   styleUrls: ['./perch-login-page.scss']
 })
 
-export class PerchLoginPage {}
+export class PerchLoginPage {
+  constructor( private _linkHelper: LinkHelper ){}
+  
+  public homeUrl = this._linkHelper.homeUrl();
+}
