@@ -18,7 +18,6 @@ import { MembersService } from './services/members.service';
 import { DeploymentsRepository } from './repositories/deployments.repository';
 import { MembersRepository } from './repositories/members.repository';
 
-
 async function init() {
   dotenv.config();
   const gitHubClient = new GitHubClient();
