@@ -11,6 +11,7 @@ import { LinkHelper } from '../services/link-helper/link-helper';
 import { HttpClientModule } from '@angular/common/http';
 import { PerchCalendarCard } from '../components/perch-calendar-card/perch-calendar-card';
 import { PerchNavigation } from '../components/perch-navigation/perch-navigation';
+import { PerchLoginPage } from '../containers/loginPage/perch-login-page';
 
 @NgModule({
   declarations: [
@@ -21,6 +22,7 @@ import { PerchNavigation } from '../components/perch-navigation/perch-navigation
     PerchCreateDeploymentPage,
     PerchCalendarCard,
     PerchNavigation
+    PerchLoginPage
   ],
   imports: [
     BrowserModule,

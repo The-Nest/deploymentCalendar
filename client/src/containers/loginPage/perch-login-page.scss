@@ -1,0 +1,28 @@
+@import '../../styles/variables';
+
+.login-container {
+    width: $inner-max-width;
+    margin: 0 auto;
+
+    .github-login {
+        display: flex;
+        width: 80%;
+        margin: 0 auto;
+        background: $black;
+        border-radius: $button-border-radius;
+        border: $border-med solid $white;
+        padding: 0.5rem 1rem;
+        align-items: center;
+    }
+    .login-text {
+        font-size: 1rem;
+        flex: 8.5;
+    }
+    .login-icon {
+        flex: 1.5;
+
+        .login-icon-img {
+            max-height: 1.5rem;
+        }
+    }
+}
