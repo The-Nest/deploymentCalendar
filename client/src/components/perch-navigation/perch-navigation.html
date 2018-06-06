@@ -1,4 +1,7 @@
 <div class="perch-nav">
+    <img src="../../assets/png/close-icon.png"
+        (click)="closeNav.emit()"
+        class="close-icon">
     <div class="nav-element"
         [routerLink]="homeUrl"
         (click)="closeNav.emit()">
@@ -14,4 +17,3 @@
         Logout
     </div>
 </div>
-

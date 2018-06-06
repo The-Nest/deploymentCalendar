@@ -1,13 +1,22 @@
+@import '../../styles/variables';
+@import '../../styles/mixins/webkit-touch';
+
 .perch-nav {
     .nav-element {
         padding: 1rem;
-        border-bottom: 1px solid #ffffff;
+        border-bottom: 1px solid $white;
+        @include wk-tap-highlight;
     }
     .nav-element:hover {
         cursor: pointer;
-        background: #000000;
+        background: $cyan;
     }
     .nav-element:last-child {
         border-bottom: 0px;
+    }
+    .close-icon {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
     }
 }

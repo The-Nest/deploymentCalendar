@@ -1,22 +1,23 @@
-<div *ngIf="showHeader" class="header-container">
-    <div class="icon-area">
-        <div (click)="toggleNav()">
-            Menu
+    <div *ngIf="showHeader" class="header-container">
+        <div class="icon-area">
+            <div (click)="toggleNav()">
+                <img src="../../assets/png/nav-icon.png">
+            </div>
+        </div>
+
+        <div class="title-area"
+            [routerLink]="homeUrl">
+            The Perch
+        </div>
+
+        <div class="icon-area"
+            [routerLink]="createUrl">
+            <img src="../../assets/png/create-icon.png">
         </div>
     </div>
 
-    <div class="title-area"
-        [routerLink]="homeUrl">
-        The Perch
-    </div>
-
-    <div class="icon-area"
-        [routerLink]="createUrl">
-        +
-    </div>
-</div>
-
-<perch-navigation class="nav"
-    [ngClass]="{'nav-open-annimation': displayNav, 'nav-close-annimation' : !displayNav}"
-    (closeNav)="toggleNav()">
-</perch-navigation>
+    <perch-navigation class="nav"
+        [ngClass]="{'nav-open-annimation': displayNav, 'nav-close-annimation' : !displayNav}"
+        onfocusout="toggleNav()"
+        (closeNav)="toggleNav()">
+    </perch-navigation>
