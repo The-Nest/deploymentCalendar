@@ -13,6 +13,6 @@ export class PerchNavigation {
   constructor( private _linkHelper: LinkHelper ){}
   
   public homeUrl = this._linkHelper.homeUrl();
-  public createUrl = this._linkHelper.deploymentCreate();
+  public createUrl = this._linkHelper.deploymentCreateUrl();
 
 }

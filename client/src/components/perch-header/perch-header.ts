@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { LinkHelper } from 'src/services/link-helper/link-helper';
 
 @Component({
@@ -10,8 +10,9 @@ import { LinkHelper } from 'src/services/link-helper/link-helper';
 export class PerchHeader {
   constructor( private _linkHelper: LinkHelper ){}
   
+  @Input() showHeader = true;
   public homeUrl = this._linkHelper.homeUrl();  
-  public createUrl = this._linkHelper.deploymentCreate();
+  public createUrl = this._linkHelper.deploymentCreateUrl();
   public displayNav: boolean = false;
 
   public toggleNav(){

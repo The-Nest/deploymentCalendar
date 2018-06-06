@@ -7,8 +7,20 @@ export class LinkHelper {
     return '/';
   }
 
-  public deploymentCreate(): string {
+  public deploymentCreateUrl(): string {
     return '/deployment/create';
+  }
+
+  public privacyUrl(): string {
+    return '/privacy';
+  }
+
+  public termsOfUseUrl(): string {
+    return '/terms-of-use';
+  }
+
+  public contactEmailLink(): string {
+    return 'mailto:mtlee3@gmail.com';
   }
 
   public getDeploymentSummaries(): string {

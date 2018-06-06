@@ -12,6 +12,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { PerchCalendarCard } from '../components/perch-calendar-card/perch-calendar-card';
 import { PerchNavigation } from '../components/perch-navigation/perch-navigation';
 import { PerchLoginPage } from '../containers/loginPage/perch-login-page';
+import { Perchfooter } from '../components/perch-footer/perch-footer';
 
 @NgModule({
   declarations: [
@@ -21,8 +22,9 @@ import { PerchLoginPage } from '../containers/loginPage/perch-login-page';
     PerchAllDeploymentsPage,
     PerchCreateDeploymentPage,
     PerchCalendarCard,
-    PerchNavigation
-    PerchLoginPage
+    PerchNavigation,
+    PerchLoginPage,
+    Perchfooter
   ],
   imports: [
     BrowserModule,

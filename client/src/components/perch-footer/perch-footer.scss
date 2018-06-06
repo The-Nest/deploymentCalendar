@@ -1,0 +1,12 @@
+@import '../../styles/variables';
+
+.footer-container {
+    position: absolute;
+    bottom: 0;
+    padding: 1rem;
+
+    .footer-link {
+        color: $lightBase;
+        text-decoration: none;
+    }
+}
