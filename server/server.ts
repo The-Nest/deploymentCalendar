@@ -17,6 +17,7 @@ import { DeploymentsService } from './services/deployments.service';
 import { MembersService } from './services/members.service';
 import { DeploymentsRepository } from './repositories/deployments.repository';
 import { MembersRepository } from './repositories/members.repository';
+import { GitHubControllerFactory } from './controllers/api/github/github.controller';
 
 async function init() {
   dotenv.config();
@@ -35,10 +36,11 @@ async function init() {
   app.use(cors());
   app.use(bodyParser.json());
   app.use(express.static(path.join(__dirname, '../client')));
+  app.use('/api/github', GitHubControllerFactory());
   app.use(
     '/api',
     DeploymentsControllerFactory(deploymentsService, membersRepository, gitHubClient),
-    MembersControllerFactory(membersService)
+    MembersControllerFactory(membersService),
   );
   app.use('*', AppController);
   app.use(ExceptionHandler);
