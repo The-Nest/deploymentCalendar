@@ -17,11 +17,6 @@ export function DeploymentsControllerFactory(
   const router = Router();
   const resourceRoute = '/deployments';
 
-  router.post('/github/webhook', (req, res) => {
-    console.log(req.body);
-    res.sendStatus(200);
-  });
-
   router.use(`${resourceRoute}/:id/integration-branch`, IntegrationBranchControllerFactory(deploymentsService.integrationBranch));
   router.use(`${resourceRoute}/:id/branches`, BranchesControllerFactory(deploymentsService.branches));
   router.use(`${resourceRoute}/:id/qa`, QAControllerFactory(deploymentsService.qa));

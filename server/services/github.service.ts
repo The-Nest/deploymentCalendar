@@ -1,4 +1,4 @@
-import { IGitHubClient } from 'types/clients/github.client';
+import { IGitHubClient, GitHubAuthenticationType } from '../types/clients/github.client';
 import { IRepository } from '../../shared/types/deployment/repository';
 
 export class GitHubService {
@@ -8,7 +8,7 @@ export class GitHubService {
     return this._gitHubClient.jsonRequest(
       'GET',
       `/repos/${owner}/${repo}/branches/${branch}`,
-      'not-a-token'
+      { authenticationType: GitHubAuthenticationType.Installation, installationId: +process.env.INSTALLATION_ID }
     ).then(response => {
       if (response.error) {
         return undefined;
@@ -21,9 +21,8 @@ export class GitHubService {
     return this._gitHubClient.jsonRequest(
       'GET',
       `/repos/${owner}/${repo}`,
-      'not-a-token'
+      { authenticationType: GitHubAuthenticationType.Installation, installationId: +process.env.INSTALLATION_ID }
     ).then(response => {
-      console.log(response);
       if (response.error) {
         return undefined;
       }

@@ -2,8 +2,13 @@ import * as https from 'https';
 import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import { IncomingMessage } from 'http';
+import { isUndefined } from 'util';
 
-import { IGitHubClient, IGitHubResponse } from 'types/clients/github.client';
+import {
+  IGitHubClient,
+  IGitHubResponse,
+  IGitHubAuthenticationOptions,
+  GitHubAuthenticationType } from '../../types/clients/github.client';
 
 
 export class GitHubClient implements IGitHubClient {
@@ -29,20 +34,25 @@ export class GitHubClient implements IGitHubClient {
     throw new Error('Branch not found');
   }
 
-  public jsonRequest(
+  public async jsonRequest(
     method: string,
     url: string,
-    token: string,
-    body?: any,
-    acceptHeader = 'application/vnd.github.v3+json'): Promise<IGitHubResponse> {
+    authOptions: IGitHubAuthenticationOptions,
+    body?: any): Promise<IGitHubResponse> {
+      let token = this._getJwtToken();
+      if (authOptions.authenticationType === GitHubAuthenticationType.Installation) {
+        token = await this._getInstallationAccessToken(authOptions.installationId, token);
+      }
       const options: https.RequestOptions = {
         hostname: 'api.github.com',
         path: url,
         method: method,
         headers: {
           'User-Agent': this._userAgent,
-          'Accept': acceptHeader,
-          'Authorization': `token ${token}`
+          'Accept': authOptions.authenticationType === GitHubAuthenticationType.App ?
+            'application/vnd.github.machine-man-preview+json' : 'application/vnd.github+json',
+          'Authorization': authOptions.authenticationType === GitHubAuthenticationType.App ?
+            `Bearer ${token}` : `token ${token}`
         }
       };
       return new Promise<IGitHubResponse>((resolve) => {
@@ -84,13 +94,13 @@ export class GitHubClient implements IGitHubClient {
     return jwt.sign(payload, this._key, { algorithm: 'RS256' });
   }
 
-  private _getInstallationAccessToken(installationId: number, token: string, userAgent: string): Promise<string> {
+  private _getInstallationAccessToken(installationId: number, token: string): Promise<string> {
     const options: https.RequestOptions = {
       hostname: 'api.github.com',
       path: `/installations/${installationId}/access_tokens`,
       method: 'POST',
       headers: {
-        'User-Agent': userAgent,
+        'User-Agent': this._userAgent,
         'Accept': 'application/vnd.github.machine-man-preview+json',
         'Authorization': `Bearer ${token}`
       }
