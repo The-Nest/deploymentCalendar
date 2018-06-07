@@ -1,6 +1,5 @@
 import { IGitHubClient } from 'types/clients/github.client';
 import { IRepository } from '../../shared/types/deployment/repository';
-import { getInstallationAccessToken, getInstallationAccessTokenForOwner } from 'clients/github/authentication/github-app-authentication';
 
 export class GitHubService {
   constructor(private _gitHubClient: IGitHubClient) { }

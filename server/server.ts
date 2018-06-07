@@ -1,5 +1,6 @@
 import * as express from 'express';
 import * as path from 'path';
+import * as fs from 'fs';
 import * as dotenv from 'dotenv';
 import * as bodyParser from 'body-parser';
 import { MongoClient } from 'mongodb';
@@ -18,19 +19,12 @@ import { MembersService } from './services/members.service';
 import { DeploymentsRepository } from './repositories/deployments.repository';
 import { MembersRepository } from './repositories/members.repository';
 import { GitHubControllerFactory } from './controllers/api/github/github.controller';
-import { getJwtToken, getInstallationAccessToken } from './clients/github/authentication/github-app-authentication';
 import { GitHubService } from './services/github.service';
 
 async function init() {
   dotenv.config();
-  const gitHubClient = new GitHubClient('the-perch');
-  const jwt = getJwtToken(path.join(__dirname, 'private-key.pem'), +process.env.ISSUER_ID);
-  console.log(jwt);
-  const token = await getInstallationAccessToken(+process.env.INSTALLATION_ID, jwt, 'the-perch');
-  console.log(token);
-  const res = await gitHubClient.jsonRequest(
-    'GET', '/installation/repositories', token, {}, 'application/vnd.github.machine-man-preview+json');
-  console.log(res);
+  const gitHubKey = fs.readFileSync(path.join(__dirname, 'private-key.pem'));
+  const gitHubClient = new GitHubClient('the-perch', gitHubKey, +process.env.ISSUER_ID);
   const mongoClient = await(new MongoClient(process.env.COSMOSDB_KEY).connect());
 
   const deploymentsRepository = new DeploymentsRepository(
