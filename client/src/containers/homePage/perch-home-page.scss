@@ -1,0 +1,11 @@
+@import '../../styles/variables';
+
+.summary-wrapper {
+    padding: 0 1rem;
+    
+    .deployment-title {
+        font-size: 1.3rem;
+        margin-top: 1.5rem;
+        font-weight: $lightFontWeight;
+    }
+}

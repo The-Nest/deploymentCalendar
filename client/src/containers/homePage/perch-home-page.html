@@ -1,2 +1,10 @@
-Perch Home Page
-<perch-calendar-card *ngFor="let summary of deploymentSummaries" [deploymentSummary]="summary"></perch-calendar-card>
+<div class="summary-wrapper">
+  <perch-create-card>
+  </perch-create-card>
+  
+  <div class="deployment-title">Today's Deployments</div>
+  <perch-calendar-card *ngFor="let summary of deploymentSummaries" 
+    [deploymentSummary]="summary">
+  </perch-calendar-card>
+</div>
+

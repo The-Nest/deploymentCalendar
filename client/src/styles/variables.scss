@@ -21,14 +21,18 @@ $darkBaseToCyan45: linear-gradient(135deg, #002b36 0%,#2aa198 100%);
 
 //Border Radius
 $button-border-radius: 5px;
+$card-border-radius: 10px;
 
 //Border
-$border-thin: 1px;
-$border-med: 2px;
-$border-thick: 3px;
+$borderThin: 1px;
+$borderMed: 2px;
+$borderThick: 3px;
 
 //Widths
 $inner-max-width: 350px;
 
 // Z INDEX
 $navLayer: 250;
+
+//FONT WEIGHTS
+$lightFontWeight: 300;

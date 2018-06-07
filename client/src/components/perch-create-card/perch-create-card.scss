@@ -33,26 +33,14 @@
         padding: 1rem;
         border-radius: 0 $card-border-radius $card-border-radius 0;
         font-weight: $lightFontWeight;
+        border: $borderThick solid $cyan;
+        border-left: 0;
 
         .text1{
             display: block;
             width: 100%;
             font-size: 1.3rem;
             line-height: 1.8rem;
-            @include ellipsis;
-        }
-        .text2{
-            display: block;
-            width: 100%;
-            font-size: 1rem;
-            line-height: 1.5rem;
-            @include ellipsis;
-        }
-        .text3{
-            display: block;
-            width: 100%;
-            font-size: 0.8rem;
-            line-height: 1.3rem;
             @include ellipsis;
         }
     }
