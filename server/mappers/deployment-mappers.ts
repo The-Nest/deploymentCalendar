@@ -7,14 +7,16 @@ import { IDeployment } from '../../shared/types/deployment/deployment';
 import { IDeploymentMember } from '../../shared/types/deployment/member';
 import { IBranch } from '../../shared/types/deployment/branch';
 import { isNullOrUndefined } from 'util';
+import { GitHubService } from 'services/github.service';
 
 export async function mapDeploymentPayloadToDocument(
   body: IDeploymentPayload,
   gitHubClient: IGitHubClient,
+  gitHubService: GitHubService,
   membersRepo: IMembersRepository): Promise<IDeployment> {
   return {
     name: _validateName(body.name),
-    repo: await gitHubClient.getRepo(body.repo.owner, body.repo.name),
+    repo: await gitHubService.getRepo(body.repo.owner, body.repo.name),
     team: await gitHubClient.getTeam(body.teamId),
     dateTime: _validateDateTime(body.dateTime)
   } as IDeployment;

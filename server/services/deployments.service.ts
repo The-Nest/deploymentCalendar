@@ -10,6 +10,7 @@ import { IDeployment } from '../../shared/types/deployment/deployment';
 import { IntegrationBranchService } from './integration-branch.service';
 import { isNullOrUndefined } from 'util';
 import { QAService } from './qa.service';
+import { GitHubService } from './github.service';
 
 export class DeploymentsService {
   public branches: BranchesService;
@@ -19,14 +20,16 @@ export class DeploymentsService {
   constructor (
     private _deploymentsRepository: IDeploymentsRepository,
     private _membersRepository: IMembersRepository,
-    private _gitHubClient: IGitHubClient) {
+    private _gitHubClient: IGitHubClient,
+    private _gitHubService: GitHubService) {
     this.branches = new BranchesService(_deploymentsRepository, _gitHubClient);
     this.integrationBranch = new IntegrationBranchService(_deploymentsRepository, _gitHubClient);
     this.qa = new QAService(_deploymentsRepository, _membersRepository);
   }
 
   public async addDeployment(deployment: IDeploymentPayload) {
-    const mappedDeployment = await mapDeploymentPayloadToDocument(deployment, this._gitHubClient, this._membersRepository);
+    const mappedDeployment =
+      await mapDeploymentPayloadToDocument(deployment, this._gitHubClient, this._gitHubService, this._membersRepository);
     return this._deploymentsRepository.insert(mappedDeployment).then(id => id);
   }
 

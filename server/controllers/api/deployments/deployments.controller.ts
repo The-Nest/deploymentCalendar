@@ -13,8 +13,7 @@ import { QAControllerFactory } from './qa/qa.controller';
 
 export function DeploymentsControllerFactory(
   deploymentsService: DeploymentsService,
-  membersRepository: IMembersRepository,
-  gitHubClient: IGitHubClient): Router {
+  membersRepository: IMembersRepository): Router {
   const router = Router();
   const resourceRoute = '/deployments';
 

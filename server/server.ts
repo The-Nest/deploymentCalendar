@@ -18,10 +18,19 @@ import { MembersService } from './services/members.service';
 import { DeploymentsRepository } from './repositories/deployments.repository';
 import { MembersRepository } from './repositories/members.repository';
 import { GitHubControllerFactory } from './controllers/api/github/github.controller';
+import { getJwtToken, getInstallationAccessToken } from './clients/github/authentication/github-app-authentication';
+import { GitHubService } from './services/github.service';
 
 async function init() {
   dotenv.config();
-  const gitHubClient = new GitHubClient();
+  const gitHubClient = new GitHubClient('the-perch');
+  const jwt = getJwtToken(path.join(__dirname, 'private-key.pem'), +process.env.ISSUER_ID);
+  console.log(jwt);
+  const token = await getInstallationAccessToken(+process.env.INSTALLATION_ID, jwt, 'the-perch');
+  console.log(token);
+  const res = await gitHubClient.jsonRequest(
+    'GET', '/installation/repositories', token, {}, 'application/vnd.github.machine-man-preview+json');
+  console.log(res);
   const mongoClient = await(new MongoClient(process.env.COSMOSDB_KEY).connect());
 
   const deploymentsRepository = new DeploymentsRepository(
@@ -29,7 +38,8 @@ async function init() {
   const membersRepository = new MembersRepository(
     new MongoCollectionClient<IMember>(mongoClient.db('perch').collection('members')));
 
-  const deploymentsService = new DeploymentsService(deploymentsRepository, membersRepository, gitHubClient);
+  const githubService = new GitHubService(gitHubClient);
+  const deploymentsService = new DeploymentsService(deploymentsRepository, membersRepository, gitHubClient, githubService);
   const membersService = new MembersService(membersRepository);
 
   const app: express.Application = express();
@@ -39,7 +49,7 @@ async function init() {
   app.use('/api/github', GitHubControllerFactory());
   app.use(
     '/api',
-    DeploymentsControllerFactory(deploymentsService, membersRepository, gitHubClient),
+    DeploymentsControllerFactory(deploymentsService, membersRepository),
     MembersControllerFactory(membersService),
   );
   app.use('*', AppController);
