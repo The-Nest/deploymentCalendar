@@ -4,14 +4,14 @@ import * as jwt from 'jsonwebtoken';
 import { IncomingMessage } from 'http';
 import { isUndefined } from 'util';
 
-import {
-  IGitHubClient,
-  IGitHubResponse,
-  IGitHubAuthenticationOptions,
-  GitHubAuthenticationType } from '../../types/clients/github.client';
+import { IGitHubClient, IGitHubResponse } from '../../types/clients/github.client';
+import { MemoryCache } from './memory-cache';
 
 
 export class GitHubClient implements IGitHubClient {
+  private _installationIdCache = new MemoryCache<number>();
+  private _installationAccessTokenCache = new MemoryCache<string>();
+
   constructor(private _userAgent: string, private _key: string | Buffer, private _id: number) { }
   public async getTeam(teamId: number) {
     if (teamId === 1) {
@@ -34,25 +34,31 @@ export class GitHubClient implements IGitHubClient {
     throw new Error('Branch not found');
   }
 
-  public async jsonRequest(
+  public async jsonApplicationRequest(method: string, url: string, body?: any): Promise<IGitHubResponse> {
+    const token = this._getJwtToken();
+    return this._jsonRequest(method, url, true, token, body);
+  }
+  public async jsonInstallationRequest(method: string, url: string, installationOwner: string, body?: any): Promise<IGitHubResponse> {
+    const jwtToken = this._getJwtToken();
+    const installationId = await this._getInstallationIdForOwner(installationOwner, jwtToken);
+    const token = await this._getInstallationAccessToken(installationId, jwtToken);
+    return this._jsonRequest(method, url, false, token, body);
+  }
+
+  private async _jsonRequest(
     method: string,
     url: string,
-    authOptions: IGitHubAuthenticationOptions,
+    applicationRequest: boolean,
+    token: string,
     body?: any): Promise<IGitHubResponse> {
-      let token = this._getJwtToken();
-      if (authOptions.authenticationType === GitHubAuthenticationType.Installation) {
-        token = await this._getInstallationAccessToken(authOptions.installationId, token);
-      }
       const options: https.RequestOptions = {
         hostname: 'api.github.com',
         path: url,
         method: method,
         headers: {
           'User-Agent': this._userAgent,
-          'Accept': authOptions.authenticationType === GitHubAuthenticationType.App ?
-            'application/vnd.github.machine-man-preview+json' : 'application/vnd.github+json',
-          'Authorization': authOptions.authenticationType === GitHubAuthenticationType.App ?
-            `Bearer ${token}` : `token ${token}`
+          'Accept': applicationRequest ? 'application/vnd.github.machine-man-preview+json' : 'application/vnd.github+json',
+          'Authorization': applicationRequest ? `Bearer ${token}` : `token ${token}`
         }
       };
       return new Promise<IGitHubResponse>((resolve) => {
@@ -116,13 +122,13 @@ export class GitHubClient implements IGitHubClient {
     });
   }
 
-  private _getInstallationIdForOwner(owner: string, token: string, userAgent: string): Promise<number> {
+  private _getInstallationIdForOwner(owner: string, token: string): Promise<number> {
     const options: https.RequestOptions = {
       hostname: 'api.github.com',
       path: `/app/installations`,
       method: 'GET',
       headers: {
-        'User-Agent': userAgent,
+        'User-Agent': this._userAgent,
         'Accept': 'application/vnd.github.machine-man-preview+json',
         'Authorization': `Bearer ${token}`
       }
