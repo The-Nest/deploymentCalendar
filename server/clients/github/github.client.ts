@@ -1,7 +1,5 @@
 import * as https from 'https';
-import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
-import { IncomingMessage } from 'http';
 import { isUndefined } from 'util';
 
 import { IGitHubClient, IGitHubResponse } from '../../types/clients/github.client';
@@ -101,50 +99,13 @@ export class GitHubClient implements IGitHubClient {
   }
 
   private _getInstallationAccessToken(installationId: number, token: string): Promise<string> {
-    const options: https.RequestOptions = {
-      hostname: 'api.github.com',
-      path: `/installations/${installationId}/access_tokens`,
-      method: 'POST',
-      headers: {
-        'User-Agent': this._userAgent,
-        'Accept': 'application/vnd.github.machine-man-preview+json',
-        'Authorization': `Bearer ${token}`
-      }
-    };
-    return new Promise<string>((resolve) => {
-      const tokenRequest = https.request(options, (res: IncomingMessage) => {
-        res.setEncoding('utf8');
-        let fullBody = '';
-        res.on('data', chunk => fullBody += chunk);
-        res.on('end', () => resolve(JSON.parse(fullBody).token));
-      });
-      tokenRequest.end();
-    });
+    return this.jsonApplicationRequest('POST', `/installations/${installationId}/access_tokens`)
+      .then(result => result.data.token);
   }
 
-  private _getInstallationIdForOwner(owner: string, token: string): Promise<number> {
-    const options: https.RequestOptions = {
-      hostname: 'api.github.com',
-      path: `/app/installations`,
-      method: 'GET',
-      headers: {
-        'User-Agent': this._userAgent,
-        'Accept': 'application/vnd.github.machine-man-preview+json',
-        'Authorization': `Bearer ${token}`
-      }
-    };
-    return new Promise<number>((resolve) => {
-      const tokenRequest = https.request(options, (res: IncomingMessage) => {
-        res.setEncoding('utf8');
-        let fullBody = '';
-        res.on('data', chunk => fullBody += chunk);
-        res.on('end', () => {
-          const jsonBody = JSON.parse(fullBody);
-          const match = jsonBody.find(installation => installation.account.login === owner);
-          resolve(match.id);
-        });
-      });
-      tokenRequest.end();
-    });
+  private async _getInstallationIdForOwner(owner: string, token: string): Promise<number> {
+    const installations = await this.jsonApplicationRequest('GET', `/app/installations`);
+    const match = installations.data.find(installation => installation.account.login === owner);
+    return match.id;
   }
 }
