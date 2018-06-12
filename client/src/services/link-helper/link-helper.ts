@@ -14,4 +14,12 @@ export class LinkHelper {
   public getDeploymentSummaries(): string {
     return 'http://localhost:3001/api/deployments/summaries';
   }
+
+  public gitHubAuthorization(clientId: string, state: string): string {
+    return `https://github.com/login/oauth/authorize?client_id=${clientId}&state=${state}`;
+  }
+
+  public getGitHubAccessToken(code: string, state: string): string {
+    return `http://localhost:3001/api/github/access_token?code=${code}&state=${state}`;
+  }
 }

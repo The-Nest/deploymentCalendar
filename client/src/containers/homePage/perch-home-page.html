@@ -1,2 +1,6 @@
 Perch Home Page
+<a *ngIf="showLoginButton" [href]="authenticationURL()">Log in with GitHub</a>
+<div *ngIf="!showLoginButton">
+  <span>Hello, {{userName}}!</span>
+</div>
 <perch-calendar-card *ngFor="let summary of deploymentSummaries" [deploymentSummary]="summary"></perch-calendar-card>

@@ -40,7 +40,7 @@ async function init() {
   app.use(cors());
   app.use(bodyParser.json());
   app.use(express.static(path.join(__dirname, '../client')));
-  app.use('/api/github', GitHubControllerFactory());
+  app.use('/api/github', GitHubControllerFactory(githubService));
   app.use(
     '/api',
     DeploymentsControllerFactory(deploymentsService, membersRepository),

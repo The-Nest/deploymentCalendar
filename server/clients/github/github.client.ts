@@ -83,6 +83,38 @@ export class GitHubClient implements IGitHubClient {
       });
   }
 
+  public getAccessToken(clientId: string, clientSecret: string, code: string, state: string): Promise<any> {
+    const postBody = JSON.stringify({
+      client_id: clientId,
+      client_secret: clientSecret,
+      code: code,
+      state: state
+    });
+    const options: https.RequestOptions = {
+      hostname: 'github.com',
+      path: '/login/oauth/access_token',
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Content-Length': postBody.length
+      }
+    };
+    return new Promise((resolve) => {
+      const request = https.request(options, (res) => {
+        res.setEncoding('utf8');
+              let fullBody = '';
+              res.on('data', chunk => fullBody += chunk);
+              res.on('end', () => {
+                const jsonBody = JSON.parse(fullBody);
+                resolve({ token: jsonBody.access_token });
+              });
+      });
+      request.write(postBody);
+      request.end();
+    });
+  }
+
   private _isSuccessStatusCode(statusCode: number) {
     return (statusCode >= 200) && (statusCode <= 299);
   }

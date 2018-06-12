@@ -41,4 +41,13 @@ export class GitHubService {
       return response.data;
     });
   }
+
+  public getAccessToken(code: string, state: string) {
+    return this._gitHubClient.getAccessToken(
+      process.env.CLIENT_ID,
+      process.env.CLIENT_SECRET,
+      code,
+      state
+    );
+  }
 }
