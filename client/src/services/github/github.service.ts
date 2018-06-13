@@ -23,6 +23,23 @@ export class GitHubService {
     return this._linkHelper.gitHubAuthorization('Iv1.0047e1810d2de496', this._state);
   }
 
+  public getUserData() {
+    this._http.get(
+      'https://api.github.com/user',
+      {
+        headers: {
+          'Authorization': `token ${this._token}`
+        },
+        observe: 'response'
+      }
+    ).subscribe(
+      (res) => {},
+      (err) => {
+        console.log(err);
+      }
+    );
+  }
+
   public completeAuthentication(state: string, code: string) {
     this._http.get(
       this._linkHelper.getGitHubAccessToken(code, state)
