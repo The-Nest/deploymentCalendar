@@ -10,6 +10,7 @@ import { AppController } from './controllers/app/app.controller';
 import { DeploymentsControllerFactory } from './controllers/api/deployments/deployments.controller';
 import { MembersControllerFactory } from './controllers/api/members/members.controller';
 import { ExceptionHandler } from './middleware/exception-handler';
+import { ApiAuthenticationHandlerFactory } from './middleware/authentication/api-authentication';
 import { MongoCollectionClient } from './clients/mongodb/mongo-collection.client';
 import { GitHubClient } from './clients/github/github.client';
 import { IDeployment } from '../shared/types/deployment/deployment';
@@ -43,6 +44,7 @@ async function init() {
   app.use('/api/github', GitHubControllerFactory(githubService));
   app.use(
     '/api',
+    ApiAuthenticationHandlerFactory(githubService),
     DeploymentsControllerFactory(deploymentsService, membersRepository),
     MembersControllerFactory(membersService),
   );

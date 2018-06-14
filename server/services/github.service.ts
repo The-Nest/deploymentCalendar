@@ -50,4 +50,16 @@ export class GitHubService {
       state
     );
   }
+
+  public validateAccessToken(token: string) {
+    return this._gitHubClient.getAuthorizationForToken(
+      process.env.CLIENT_ID,
+      process.env.CLIENT_SECRET,
+      token
+    ).then(res => {
+      if (res.statusCode === 404) {
+        return false;
+      }
+    });
+  }
 }

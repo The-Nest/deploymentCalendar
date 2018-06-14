@@ -115,6 +115,38 @@ export class GitHubClient implements IGitHubClient {
     });
   }
 
+  public getAuthorizationForToken(clientId: string, clientSecret: string, accessToken: string): Promise<IGitHubResponse> {
+    const urlPath = `/applications/${clientId}/tokens/${accessToken}`;
+    const encodedAuth = new Buffer(`${clientId}:${clientSecret}`).toString('base64');
+    const options: https.RequestOptions = {
+      hostname: 'api.github.com',
+      path: urlPath,
+      method: 'GET',
+      headers: {
+        'User-Agent': this._userAgent,
+        'Accept': 'application/json',
+        'Authorization': `Basic ${encodedAuth}`
+      }
+    };
+    return new Promise((resolve) => {
+      const request = https.request(options, (res) => {
+        res.setEncoding('utf8');
+          let fullBody = '';
+          res.on('data', chunk => fullBody += chunk);
+          res.on('end', () => {
+            const jsonBody = JSON.parse(fullBody);
+            const response: IGitHubResponse =
+                (this._isSuccessStatusCode(res.statusCode) ? { data: jsonBody } : { error: jsonBody }) as IGitHubResponse;
+              response.statusCode = res.statusCode;
+            resolve(response);
+          });
+      });
+      request.end();
+    });
+  }
+
+
+
   private _isSuccessStatusCode(statusCode: number) {
     return (statusCode >= 200) && (statusCode <= 299);
   }
