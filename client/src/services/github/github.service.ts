@@ -3,12 +3,14 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { LinkHelper } from '../link-helper/link-helper';
 import { isNullOrUndefined } from 'util';
 import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { Observable, observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
 @Injectable()
 export class GitHubService {
   private _state: string = localStorage.getItem('gh:state');
-  private _token: string = '';
+  private _token: string = localStorage.getItem('gh:token');
   public authenticated: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(this._isAuthenticated());
   constructor(private _router: Router, private _linkHelper: LinkHelper, private _http: HttpClient) { }
 
@@ -23,8 +25,17 @@ export class GitHubService {
     return this._linkHelper.gitHubAuthorization('Iv1.0047e1810d2de496', this._state);
   }
 
-  public getUserData() {
-    this._http.get(
+  public logout() {
+   localStorage.removeItem('gh:token');
+   this.authenticated.next(false);
+   this._router.navigate(['/']);
+  }
+
+  public getUserData(): Observable<boolean> {
+    if (isNullOrUndefined(this._token)) {
+      return of(false);
+    }
+    return this._http.get(
       'https://api.github.com/user',
       {
         headers: {
@@ -32,12 +43,11 @@ export class GitHubService {
         },
         observe: 'response'
       }
-    ).subscribe(
-      (res) => {},
-      (err) => {
-        console.log(err);
+    ).pipe(map(
+      (res: HttpResponse<any>) => {
+        return true;
       }
-    );
+    ), catchError(() => of(false)));
   }
 
   public completeAuthentication(state: string, code: string) {

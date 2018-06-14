@@ -12,6 +12,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { PerchCalendarCard } from '../components/perch-calendar-card/perch-calendar-card';
 import { PerchNavigation } from '../components/perch-navigation/perch-navigation';
 import { GitHubService } from '../services/github/github.service';
+import { GitHubAuthenticationGuard } from '../guards/github-authentication.guard';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,7 @@ import { GitHubService } from '../services/github/github.service';
     Routing,
     HttpClientModule
   ],
-  providers: [LinkHelper, GitHubService],
+  providers: [LinkHelper, GitHubService, GitHubAuthenticationGuard],
   bootstrap: [Perch]
 })
 
