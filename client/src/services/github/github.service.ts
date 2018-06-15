@@ -14,7 +14,7 @@ export class GitHubService {
   public authenticated: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(this._isAuthenticated());
   constructor(private _router: Router, private _linkHelper: LinkHelper, private _http: HttpClient) { }
 
-  public generateAuthenticationURL() {
+  public generateAuthenticationURL(redirectUri?: string) {
     if (isNullOrUndefined(this._state)) {
       this._state = localStorage.getItem('gh:state');
       if (isNullOrUndefined(this._state)) {
@@ -22,7 +22,7 @@ export class GitHubService {
         localStorage.setItem('gh:state', this._state);
       }
     }
-    return this._linkHelper.gitHubAuthorization('Iv1.0047e1810d2de496', this._state);
+    return this._linkHelper.gitHubAuthorization('Iv1.0047e1810d2de496', this._state, redirectUri);
   }
 
   public logout() {
@@ -31,34 +31,41 @@ export class GitHubService {
    this._router.navigate(['/']);
   }
 
-  public getUserData(): Observable<boolean> {
-    if (isNullOrUndefined(this._token)) {
-      return of(false);
-    }
-    return this._http.get(
-      'https://api.github.com/user',
-      {
-        headers: {
-          'Authorization': `token ${this._token}`
+  public getUserData(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      if (isNullOrUndefined(this._token)) {
+        resolve(false);
+        return;
+      }
+      this._http.get(
+        'https://api.github.com/user',
+        {
+          headers: {
+            'Authorization': `token ${this._token}`
+          },
+          observe: 'response'
+        }
+      ).subscribe(
+        (res: HttpResponse<any>) => {
+          resolve(true);
         },
-        observe: 'response'
-      }
-    ).pipe(map(
-      (res: HttpResponse<any>) => {
-        return true;
-      }
-    ), catchError(() => of(false)));
+        (err) => resolve(false)
+      );
+    });
   }
 
-  public completeAuthentication(state: string, code: string) {
-    this._http.get(
-      this._linkHelper.getGitHubAccessToken(code, state)
-    ).subscribe((responseToken: any) => {
-      if (!isNullOrUndefined(responseToken.token)) {
-        this._token = responseToken.token;
-        localStorage.setItem('gh:token', this._token);
-        this.authenticated.next(true);
-      }
+  public completeAuthentication(state: string, code: string): Promise<string> {
+    return new Promise((resolve) => {
+      this._http.get(
+        this._linkHelper.getGitHubAccessToken(code, state)
+      ).subscribe((responseToken: any) => {
+        if (!isNullOrUndefined(responseToken.token)) {
+          this._token = responseToken.token;
+          localStorage.setItem('gh:token', this._token);
+          this.authenticated.next(true);
+          resolve(this._token);
+        }
+      });
     });
   }
 
