@@ -14,17 +14,10 @@ import { isNullOrUndefined } from 'util';
 
 export class PerchHomePage {
   public showLoginButton = false;
-  constructor(
-    private _gitHubService: GitHubService,
-    private _activatedRoute: ActivatedRoute
-  ) {
 
-    this._activatedRoute.queryParams.subscribe(queryParams => {
-      if (!isNullOrUndefined(queryParams['code']) && !isNullOrUndefined(queryParams['state'])) {
-        this._gitHubService.completeAuthentication(queryParams['state'], queryParams['code']);
-      }
-    });
-  }
+  constructor(
+    private _gitHubService: GitHubService
+  ) { }
 
   ngOnInit() {
     this._gitHubService.authenticated.subscribe(authenticated => {
