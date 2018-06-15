@@ -60,6 +60,7 @@ export class GitHubService {
       if (res.statusCode === 404) {
         return false;
       }
+      return true;
     });
   }
 }

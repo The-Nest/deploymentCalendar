@@ -1,16 +1,14 @@
 import { Injectable } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { LinkHelper } from '../link-helper/link-helper';
 import { isNullOrUndefined } from 'util';
-import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { Observable, observable, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable()
 export class GitHubService {
   private _state: string = localStorage.getItem('gh:state');
-  private _token: string = localStorage.getItem('gh:token');
+  public token: string = localStorage.getItem('gh:token');
   public authenticated: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(this._isAuthenticated());
   constructor(private _router: Router, private _linkHelper: LinkHelper, private _http: HttpClient) { }
 
@@ -33,7 +31,7 @@ export class GitHubService {
 
   public getUserData(): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      if (isNullOrUndefined(this._token)) {
+      if (isNullOrUndefined(this.token)) {
         resolve(false);
         return;
       }
@@ -41,14 +39,12 @@ export class GitHubService {
         'https://api.github.com/user',
         {
           headers: {
-            'Authorization': `token ${this._token}`
+            'Authorization': `token ${this.token}`
           },
           observe: 'response'
         }
       ).subscribe(
-        (res: HttpResponse<any>) => {
-          resolve(true);
-        },
+        (res: HttpResponse<any>) => resolve(true),
         (err) => resolve(false)
       );
     });
@@ -60,10 +56,10 @@ export class GitHubService {
         this._linkHelper.getGitHubAccessToken(code, state)
       ).subscribe((responseToken: any) => {
         if (!isNullOrUndefined(responseToken.token)) {
-          this._token = responseToken.token;
-          localStorage.setItem('gh:token', this._token);
+          this.token = responseToken.token;
+          localStorage.setItem('gh:token', this.token);
           this.authenticated.next(true);
-          resolve(this._token);
+          resolve(this.token);
         }
       });
     });

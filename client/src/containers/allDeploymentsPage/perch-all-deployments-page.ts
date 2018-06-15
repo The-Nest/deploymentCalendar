@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { LinkHelper } from '../../services/link-helper/link-helper';
 import { HttpClient } from '@angular/common/http';
 import { IDeploymentSummary } from '../../../../shared/types/deployment/deployment-summary';
+import { GitHubService } from '../../services/github/github.service';
 
 @Component({
   selector: 'perch-all-deployments',
@@ -13,10 +14,17 @@ export class PerchAllDeploymentsPage {
   public deploymentSummaries: IDeploymentSummary[] = [];
   constructor(
     private _http: HttpClient,
+    private _gitHubService: GitHubService,
     private _linkHelper: LinkHelper) { }
 
   ngOnInit() {
-    this._http.get(this._linkHelper.getDeploymentSummaries())
-      .subscribe((result: IDeploymentSummary[]) => this.deploymentSummaries = result);
+    this._http.get(
+      this._linkHelper.getDeploymentSummaries(),
+      {
+        headers: {
+          'Authorization': this._gitHubService.token
+        }
+      }
+    ).subscribe((result: IDeploymentSummary[]) => this.deploymentSummaries = result);
   }
 }
