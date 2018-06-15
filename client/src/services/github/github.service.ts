@@ -29,24 +29,43 @@ export class GitHubService {
    this._router.navigate(['/']);
   }
 
-  public getUserData(): Promise<boolean> {
-    return new Promise((resolve, reject) => {
+  public login(): Promise<LoginResult> {
+    return new Promise((resolve) => {
       if (isNullOrUndefined(this.token)) {
-        resolve(false);
+        resolve({
+          state: LoginState.BAD_TOKEN
+        });
         return;
       }
       this._http.get(
-        'https://api.github.com/user',
+        this._linkHelper.login(),
         {
           headers: {
-            'Authorization': `token ${this.token}`
+            'Authorization': this.token
           },
           observe: 'response'
         }
       ).subscribe(
-        (res: HttpResponse<any>) => resolve(true),
-        (err) => resolve(false)
-      );
+        (res: HttpResponse<any>) => resolve({
+          state: LoginState.SUCCESS,
+          data: res.body
+        }),
+        ((err: HttpErrorResponse) => {
+          if (err.status === 404) {
+            resolve({
+              state: LoginState.UNREGISTERED
+            });
+          } else if (err.status === 403) {
+            resolve({
+              state: LoginState.FORBIDDEN
+            });
+          } else if (err.status === 401) {
+            resolve({
+              state: LoginState.BAD_TOKEN
+            });
+          }
+        })
+      )
     });
   }
 
@@ -68,4 +87,16 @@ export class GitHubService {
   private _isAuthenticated() {
     return !isNullOrUndefined(localStorage.getItem('gh:token'));
   }
+}
+
+export interface LoginResult {
+  state: LoginState;
+  data?: any;
+}
+
+export enum LoginState {
+  SUCCESS,
+  UNREGISTERED,
+  BAD_TOKEN,
+  FORBIDDEN
 }

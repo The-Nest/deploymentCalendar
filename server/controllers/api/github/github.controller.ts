@@ -7,9 +7,5 @@ export function GitHubControllerFactory(gitHubService: GitHubService) {
 
   router.use('/webhook', GitHubWebhookControllerFactory());
 
-  router.get('/access_token', (req: Request, res: Response, next: NextFunction) => {
-    gitHubService.getAccessToken(req.query.code, req.query.state).then(token => res.send(token));
-  });
-
   return router;
 }

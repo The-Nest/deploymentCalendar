@@ -16,6 +16,10 @@ export class LinkHelper {
     return 'http://localhost:3001/api/deployments/summaries';
   }
 
+  public login(): string {
+    return 'http://localhost:3001/api/authentication/login'
+  }
+
   public gitHubAuthorization(clientId: string, state: string, redirectUri?: string): string {
     if (isUndefined(redirectUri)) {
       return `https://github.com/login/oauth/authorize?client_id=${clientId}&state=${state}`;
@@ -24,6 +28,6 @@ export class LinkHelper {
   }
 
   public getGitHubAccessToken(code: string, state: string): string {
-    return `http://localhost:3001/api/github/access_token?code=${code}&state=${state}`;
+    return `http://localhost:3001/api/authentication/access_token?code=${code}&state=${state}`;
   }
 }

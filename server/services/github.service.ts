@@ -52,15 +52,19 @@ export class GitHubService {
   }
 
   public validateAccessToken(token: string) {
-    return this._gitHubClient.getAuthorizationForToken(
-      process.env.CLIENT_ID,
-      process.env.CLIENT_SECRET,
-      token
-    ).then(res => {
+    return this.getAuthorizationForToken(token).then(res => {
       if (res.statusCode === 404) {
         return false;
       }
       return true;
     });
+  }
+
+  public getAuthorizationForToken(token: string) {
+    return this._gitHubClient.getAuthorizationForToken(
+      process.env.CLIENT_ID,
+      process.env.CLIENT_SECRET,
+      token
+    );
   }
 }
