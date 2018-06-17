@@ -12,8 +12,8 @@ export class LinkHelper {
     return '/deployment/create';
   }
 
-  public getDeploymentSummaries(): string {
-    return 'http://localhost:3001/api/deployments/summaries';
+  public getDeploymentSummaries(user: boolean, login: string): string {
+    return `http://localhost:3001/api/${user ? 'user' : 'org'}/${login}/deployments/summaries`;
   }
 
   public login(): string {

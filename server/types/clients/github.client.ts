@@ -4,6 +4,7 @@ export interface IGitHubClient {
 
   jsonApplicationRequest(method: string, url: string, body?: any): Promise<IGitHubResponse>;
   jsonInstallationRequest(method: string, url: string, installationOwner: string, body?: any): Promise<IGitHubResponse>;
+  jsonUserRequest(method: string, url: string, accessToken: string, body?: any): Promise<IGitHubResponse>;
 
   getAccessToken(clientId: string, clientSecret: string, code: string, state: string): Promise<any>;
   getAuthorizationForToken(clientId: string, clientSecret: string, accessToken: string): Promise<IGitHubResponse>;

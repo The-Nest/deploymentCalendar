@@ -22,6 +22,8 @@ import { MembersRepository } from './repositories/members.repository';
 import { GitHubControllerFactory } from './controllers/api/github/github.controller';
 import { GitHubService } from './services/github.service';
 import { AuthenticationControllerFactory } from './controllers/api/authentication/authentication.controller';
+import { OrganizationMiddlewareFactory } from './middleware/organization-middleware';
+import { userMiddlewareFactory } from './middleware/user-middleware';
 
 async function init() {
   dotenv.config();
@@ -42,16 +44,20 @@ async function init() {
   app.use(cors());
   app.use(bodyParser.json());
   app.use(express.static(path.join(__dirname, '../client')));
-  app.use('/api/authentication',
-    AuthenticationControllerFactory(githubService, membersService));
-  app.use('/api/github',
-    GitHubControllerFactory(githubService));
   app.use(
     '/api',
-    ApiAuthenticationHandlerFactory(githubService),
-    DeploymentsControllerFactory(deploymentsService, membersRepository),
-    MembersControllerFactory(membersService),
-  );
+    AuthenticationControllerFactory(githubService, membersService),
+    userMiddlewareFactory(githubService).use(
+      '/user/:user',
+      ApiAuthenticationHandlerFactory(githubService).use(
+        GitHubControllerFactory(githubService),
+        DeploymentsControllerFactory(deploymentsService, membersRepository),
+        MembersControllerFactory(membersService),
+      )
+    ),
+    OrganizationMiddlewareFactory(githubService),
+  ),
+  app.use('/api/*', (req: express.Request, res: express.Response) => res.sendStatus(404));
   app.use('*', AppController);
   app.use(ExceptionHandler);
 

@@ -5,7 +5,7 @@ import { GitHubService } from 'services/github.service';
 export function GitHubControllerFactory(gitHubService: GitHubService) {
   const router = Router();
 
-  router.use('/webhook', GitHubWebhookControllerFactory());
+  router.use('/github/webhook', GitHubWebhookControllerFactory());
 
   return router;
 }

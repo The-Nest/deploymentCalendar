@@ -34,19 +34,24 @@ export class GitHubClient implements IGitHubClient {
 
   public async jsonApplicationRequest(method: string, url: string, body?: any): Promise<IGitHubResponse> {
     const token = this._getJwtToken();
-    return this._jsonRequest(method, url, true, token, body);
+    return this._jsonRequest(method, url, gitHubApiRequestType.Applicaton, token, body);
   }
+
   public async jsonInstallationRequest(method: string, url: string, installationOwner: string, body?: any): Promise<IGitHubResponse> {
     const jwtToken = this._getJwtToken();
     const installationId = await this._getInstallationIdForOwner(installationOwner, jwtToken);
     const token = await this._getInstallationAccessToken(installationId, jwtToken);
-    return this._jsonRequest(method, url, false, token, body);
+    return this._jsonRequest(method, url, gitHubApiRequestType.Installation, token, body);
+  }
+
+  public async jsonUserRequest(method: string, url: string, accessToken: string, body?: any): Promise<IGitHubResponse> {
+    return this._jsonRequest(method, url, gitHubApiRequestType.User, accessToken, body);
   }
 
   private async _jsonRequest(
     method: string,
     url: string,
-    applicationRequest: boolean,
+    requestType: gitHubApiRequestType,
     token: string,
     body?: any): Promise<IGitHubResponse> {
       const options: https.RequestOptions = {
@@ -55,8 +60,9 @@ export class GitHubClient implements IGitHubClient {
         method: method,
         headers: {
           'User-Agent': this._userAgent,
-          'Accept': applicationRequest ? 'application/vnd.github.machine-man-preview+json' : 'application/vnd.github+json',
-          'Authorization': applicationRequest ? `Bearer ${token}` : `token ${token}`
+          'Accept': requestType === gitHubApiRequestType.Applicaton ?
+            'application/vnd.github.machine-man-preview+json' : 'application/vnd.github+json',
+          'Authorization': requestType === gitHubApiRequestType.Applicaton ? `Bearer ${token}` : `token ${token}`
         }
       };
       return new Promise<IGitHubResponse>((resolve) => {
@@ -172,4 +178,10 @@ export class GitHubClient implements IGitHubClient {
     const match = installations.data.find(installation => installation.account.login === owner);
     return match.id;
   }
+}
+
+enum gitHubApiRequestType {
+  User,
+  Applicaton,
+  Installation
 }

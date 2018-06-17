@@ -6,7 +6,7 @@ import { isNullOrUndefined } from 'util';
 export function AuthenticationControllerFactory(gitHubService: GitHubService, membersService: MembersService) {
   const router = Router();
 
-  router.get('/login', (req: Request, res: Response, next: NextFunction) => {
+  router.get('/authentication/login', (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers['authorization'] as string;
     gitHubService.getAuthorizationForToken(authHeader).then(async (result) => {
       if (isNullOrUndefined(result.error)) {
@@ -27,7 +27,7 @@ export function AuthenticationControllerFactory(gitHubService: GitHubService, me
     });
   });
 
-  router.get('/access_token', (req: Request, res: Response, next: NextFunction) => {
+  router.get('/authentication/access_token', (req: Request, res: Response, next: NextFunction) => {
     gitHubService.getAccessToken(req.query.code, req.query.state).then(token => res.send(token));
   });
 

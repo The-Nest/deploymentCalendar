@@ -19,7 +19,7 @@ export class PerchAllDeploymentsPage {
 
   ngOnInit() {
     this._http.get(
-      this._linkHelper.getDeploymentSummaries(),
+      this._linkHelper.getDeploymentSummaries(true, 'cgolobic'),
       {
         headers: {
           'Authorization': this._gitHubService.token

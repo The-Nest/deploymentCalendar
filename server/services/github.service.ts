@@ -22,24 +22,22 @@ export class GitHubService {
       'GET',
       `/repos/${owner}/${repo}`,
       owner
-    ).then(response => {
-      if (response.error) {
-        return undefined;
-      }
-      return response.data;
-    });
+    ).then(response => response.data);
   }
 
   public getApplicationInstallations() {
     return this._gitHubClient.jsonApplicationRequest(
       'GET',
       '/app/installations',
-    ).then(response => {
-      if (response.error) {
-        return undefined;
-      }
-      return response.data;
-    });
+    ).then(response => response.data);
+  }
+
+  public getAuthenticatedUser(accessToken: string) {
+    return this._gitHubClient.jsonUserRequest(
+      'GET',
+      '/user',
+      accessToken
+    ).then(response => response.data);
   }
 
   public getAccessToken(code: string, state: string) {
@@ -49,6 +47,20 @@ export class GitHubService {
       code,
       state
     );
+  }
+
+  public getOrganizationInstallation(organization: string) {
+    return this._gitHubClient.jsonApplicationRequest(
+      'GET',
+      `/orgs/${organization}/installation`
+    ).then(response => response.data);
+  }
+
+  public getUserInstallation(user: string) {
+    return this._gitHubClient.jsonApplicationRequest(
+      'GET',
+      `/users/${user}/installation`
+    ).then(response => response.data);
   }
 
   public validateAccessToken(token: string) {
