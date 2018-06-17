@@ -41,21 +41,26 @@ async function init() {
   const membersService = new MembersService(membersRepository);
 
   const app: express.Application = express();
+  const apiControllers = [
+    GitHubControllerFactory(githubService),
+    DeploymentsControllerFactory(deploymentsService, membersRepository),
+    MembersControllerFactory(membersService)
+  ];
   app.use(cors());
   app.use(bodyParser.json());
   app.use(express.static(path.join(__dirname, '../client')));
   app.use(
     '/api',
     AuthenticationControllerFactory(githubService, membersService),
-    userMiddlewareFactory(githubService).use(
-      '/user/:user',
-      ApiAuthenticationHandlerFactory(githubService).use(
-        GitHubControllerFactory(githubService),
-        DeploymentsControllerFactory(deploymentsService, membersRepository),
-        MembersControllerFactory(membersService),
-      )
-    ),
-    OrganizationMiddlewareFactory(githubService),
+    ApiAuthenticationHandlerFactory(githubService).use(
+      '/',
+      userMiddlewareFactory(githubService).use(
+        '/user/:user',
+        apiControllers),
+      OrganizationMiddlewareFactory(githubService).use(
+        'org/:org',
+        apiControllers)
+    )
   ),
   app.use('/api/*', (req: express.Request, res: express.Response) => res.sendStatus(404));
   app.use('*', AppController);
