@@ -25,6 +25,17 @@ export class GitHubService {
     ).then(response => response.data);
   }
 
+  public checkMembership(organization: string, username: string, accessToken: string) {
+    return this._gitHubClient.jsonUserRequest(
+      'GET',
+      `/orgs/${organization}/members/${username}`,
+      accessToken
+    ).then(response => {
+      console.log(response);
+      return response.statusCode !== 404;
+    });
+  }
+
   public getApplicationInstallations() {
     return this._gitHubClient.jsonApplicationRequest(
       'GET',
