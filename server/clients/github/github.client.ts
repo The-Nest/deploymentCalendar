@@ -1,6 +1,6 @@
 import * as https from 'https';
 import * as jwt from 'jsonwebtoken';
-import { isUndefined } from 'util';
+import { isUndefined, isNullOrUndefined } from 'util';
 
 import { IGitHubClient, IGitHubResponse } from '../../types/clients/github.client';
 import { MemoryCache } from './memory-cache';
@@ -48,6 +48,10 @@ export class GitHubClient implements IGitHubClient {
     return this._jsonRequest(method, url, gitHubApiRequestType.User, accessToken, body);
   }
 
+  public graphQlRequest(query: string, accessToken: string): Promise<IGitHubResponse> {
+    return this._jsonRequest('POST', '/graphql', gitHubApiRequestType.Applicaton, accessToken, { query });
+  }
+
   private async _jsonRequest(
     method: string,
     url: string,
@@ -65,6 +69,7 @@ export class GitHubClient implements IGitHubClient {
           'Authorization': requestType === gitHubApiRequestType.Applicaton ? `Bearer ${token}` : `token ${token}`
         }
       };
+      console.log(options);
       return new Promise<IGitHubResponse>((resolve) => {
         const request = https.request(options, (res) => {
           try {
@@ -85,6 +90,9 @@ export class GitHubClient implements IGitHubClient {
             } as IGitHubResponse);
           }
         });
+        if (!isNullOrUndefined(body)) {
+          request.write(JSON.stringify(body));
+        }
         request.end();
       });
   }

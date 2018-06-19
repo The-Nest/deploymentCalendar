@@ -36,6 +36,33 @@ export class GitHubService {
     });
   }
 
+  public getScope(login: string, accessToken: string) {
+    this._gitHubClient.graphQlRequest(
+      `
+      query {
+        repositoryOwner(login: "cgolobic") {
+          public: repositories(affiliations: [COLLABORATOR], first: 1, privacy: PUBLIC) {
+            nodes {
+              name,
+              isPrivate
+            }
+          },
+          private: repositories(affiliations: [COLLABORATOR], first: 1, privacy: PRIVATE) {
+            nodes {
+              name,
+              isPrivate
+            }
+          }
+        }
+      }
+      `,
+      accessToken
+    ).then(response => {
+      console.log(JSON.stringify(response));
+      return response;
+    });
+  }
+
   public getApplicationInstallations() {
     return this._gitHubClient.jsonApplicationRequest(
       'GET',
