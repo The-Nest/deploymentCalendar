@@ -5,6 +5,7 @@ import { IDeploymentSummary } from '../../../../shared/types/deployment/deployme
 import { GitHubService } from '../../services/github/github.service';
 import { ActivatedRoute } from '@angular/router';
 import { isNullOrUndefined } from 'util';
+import { GitHubScopes } from '../../enums/github-scopes';
 
 @Component({
   selector: 'perch-home-page',
@@ -26,6 +27,10 @@ export class PerchHomePage {
   }
 
   public authenticationURL() {
-    return this._gitHubService.generateAuthenticationURL();
+    return this._gitHubService.generateAuthenticationURL([
+      GitHubScopes.USER,
+      GitHubScopes.REPO,
+      GitHubScopes.READ_ORG
+    ]);
   }
 }

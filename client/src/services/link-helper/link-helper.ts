@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { isUndefined } from 'util';
+import { GitHubScopes } from '../../enums/github-scopes';
 
 @Injectable()
 export class LinkHelper {
@@ -20,11 +21,15 @@ export class LinkHelper {
     return 'http://localhost:3001/api/login'
   }
 
-  public gitHubAuthorization(clientId: string, state: string, redirectUri?: string): string {
-    if (isUndefined(redirectUri)) {
-      return `https://github.com/login/oauth/authorize?client_id=${clientId}&state=${state}`;
+  public gitHubAuthorization(clientId: string, state: string, scopes: GitHubScopes[] = [], redirectUri?: string): string {
+    let scopeQueryParam = '';
+    if (scopes.length > 0) {
+      scopeQueryParam = '&scope=' + encodeURI(scopes.reduce((queryParamValue, scope) => queryParamValue += (queryParamValue === '' ? scope : ` ${scope}`), ''));
     }
-    return `https://github.com/login/oauth/authorize?client_id=${clientId}&state=${state}&redirect_uri=${redirectUri}`;
+    if (isUndefined(redirectUri)) {
+      return `https://github.com/login/oauth/authorize?client_id=${clientId}&state=${state}${scopeQueryParam}`;
+    }
+    return `https://github.com/login/oauth/authorize?client_id=${clientId}&state=${state}${scopeQueryParam}&redirect_uri=${redirectUri}`;
   }
 
   public getGitHubAccessToken(code: string, state: string): string {

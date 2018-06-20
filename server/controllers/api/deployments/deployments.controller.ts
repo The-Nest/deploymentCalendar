@@ -20,8 +20,10 @@ export function DeploymentsControllerFactory(
 
   router.post(
     resourceRoute,
-    async (req: Request, res: Response, next: NextFunction) =>
-      deploymentsService.addDeployment(req.body).then(id => res.send(id)).catch(next)
+    async (req: Request, res: Response, next: NextFunction) => {
+      const authHeader = req.headers['authorization'] as string;
+      return deploymentsService.addDeployment(req.body, authHeader).then(id => res.send(id)).catch(next);
+    }
   );
 
   router.get(

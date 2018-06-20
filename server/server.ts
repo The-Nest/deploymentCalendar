@@ -21,9 +21,7 @@ import { DeploymentsRepository } from './repositories/deployments.repository';
 import { MembersRepository } from './repositories/members.repository';
 import { GitHubControllerFactory } from './controllers/api/github/github.controller';
 import { GitHubService } from './services/github.service';
-import { OwnerMiddlewareFactory } from './middleware/owner-middleware';
 import { LoginControllerFactory } from './controllers/api/login/login.controller';
-import { RepositoryMiddlewareFactory } from './middleware/repository-middleware';
 
 async function init() {
   dotenv.config();
@@ -41,30 +39,28 @@ async function init() {
   const membersService = new MembersService(membersRepository);
 
   const app: express.Application = express();
+  const apiRouter: express.Router = express.Router();
+  const ownerRouter: express.Router = express.Router();
+  const repoRouter: express.Router = express.Router();
+
   const apiControllers = [
     GitHubControllerFactory(githubService),
-    DeploymentsControllerFactory(deploymentsService, (r) => ({ login: r.params.login, repo: r.params.repo })),
+    DeploymentsControllerFactory(deploymentsService, (r) => ({ login: r.params.owner, repo: r.params.repo })),
     MembersControllerFactory(membersService)
   ];
   app.use(cors());
   app.use(bodyParser.json());
   app.use(express.static(path.join(__dirname, '../client')));
-  app.use(
-    '/api',
-    LoginControllerFactory(githubService, membersService),
-    ApiAuthenticationHandlerFactory(githubService).use(
-      '/:login',
-      OwnerMiddlewareFactory(githubService, (r) => ({ login: r.params.login })).use(
-        apiControllers
-      ).use(
-        '/:repo',
-        RepositoryMiddlewareFactory(githubService, (r) => ({ login: r.params.login, repo: r.params.repo })).use(
-          apiControllers
-        )
-      )
-    )
-  ),
-  app.use('/api/*', (req: express.Request, res: express.Response) => res.sendStatus(404));
+  app.use('/api/login', LoginControllerFactory(githubService, membersService));
+
+  apiRouter.use('/', ApiAuthenticationHandlerFactory(githubService));
+  ownerRouter.use('/:owner', apiControllers);
+  repoRouter.use('/:owner/:repo', apiControllers);
+  apiRouter.use(ownerRouter, repoRouter);
+  apiRouter.use('/*', (req: express.Request, res: express.Response) => res.sendStatus(404));
+  app.use('/api', apiRouter);
+
+  // app.use('/*', (req: express.Request, res: express.Response) => res.sendStatus(404));
   app.use('*', AppController);
   app.use(ExceptionHandler);
 

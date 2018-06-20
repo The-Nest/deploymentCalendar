@@ -5,11 +5,11 @@ import { isNullOrUndefined } from 'util';
 export class GitHubService {
   constructor(private _gitHubClient: IGitHubClient) { }
 
-  public getBranch(owner: string, repo: string, branch: string) {
-    return this._gitHubClient.jsonInstallationRequest(
+  public getBranch(owner: string, repo: string, branch: string, authToken: string) {
+    return this._gitHubClient.jsonUserRequest(
       'GET',
       `/repos/${owner}/${repo}/branches/${branch}`,
-      owner
+      authToken
     ).then(response => {
       if (response.error) {
         return undefined;
@@ -18,11 +18,11 @@ export class GitHubService {
     });
   }
 
-  public getRepo(owner: string, repo: string) {
-    return this._gitHubClient.jsonInstallationRequest(
+  public getRepo(owner: string, repo: string, authToken: string) {
+    return this._gitHubClient.jsonUserRequest(
       'GET',
       `/repos/${owner}/${repo}`,
-      owner
+      authToken,
     ).then(response => response.data);
   }
 
@@ -83,40 +83,13 @@ export class GitHubService {
     });
   }
 
-  public getApplicationInstallations() {
-    return this._gitHubClient.jsonApplicationRequest(
-      'GET',
-      '/app/installations',
-    ).then(response => response.data);
-  }
-
-  public getAuthenticatedUser(accessToken: string) {
-    return this._gitHubClient.jsonUserRequest(
-      'GET',
-      '/user',
-      accessToken
-    ).then(response => response.data);
-  }
-
   public getAccessToken(code: string, state: string) {
     return this._gitHubClient.getAccessToken(
-      process.env.CLIENT_ID,
-      process.env.CLIENT_SECRET,
+      process.env.OAUTH_CLIENT_ID,
+      process.env.OAUTH_CLIENT_SECRET,
       code,
       state
     );
-  }
-
-  isAppInstalled(login: string, repo?: string) {
-    let path = `/users/${login}/installation`;
-    if (!isNullOrUndefined(repo)) {
-
-      path = `/repos/${login}/${repo}/installation`;
-    }
-    return this._gitHubClient.jsonApplicationRequest(
-      'GET',
-      path
-    ).then(res => res.statusCode === 200);
   }
 
   public validateAccessToken(token: string) {
@@ -130,8 +103,8 @@ export class GitHubService {
 
   public getAuthorizationForToken(token: string) {
     return this._gitHubClient.getAuthorizationForToken(
-      process.env.CLIENT_ID,
-      process.env.CLIENT_SECRET,
+      process.env.OAUTH_CLIENT_ID,
+      process.env.OAUTH_CLIENT_SECRET,
       token
     );
   }

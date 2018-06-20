@@ -27,9 +27,9 @@ export class DeploymentsService {
     this.qa = new QAService(_deploymentsRepository, _membersRepository);
   }
 
-  public async addDeployment(deployment: IDeploymentPayload) {
+  public async addDeployment(deployment: IDeploymentPayload, accessToken: string) {
     const mappedDeployment =
-      await mapDeploymentPayloadToDocument(deployment, this._gitHubClient, this._gitHubService, this._membersRepository);
+      await mapDeploymentPayloadToDocument(deployment, this._gitHubClient, this._gitHubService, accessToken, this._membersRepository);
     return this._deploymentsRepository.insert(mappedDeployment).then(id => id);
   }
 

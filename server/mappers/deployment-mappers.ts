@@ -13,10 +13,11 @@ export async function mapDeploymentPayloadToDocument(
   body: IDeploymentPayload,
   gitHubClient: IGitHubClient,
   gitHubService: GitHubService,
+  accessToken: string,
   membersRepo: IMembersRepository): Promise<IDeployment> {
   return {
     name: _validateName(body.name),
-    repo: await gitHubService.getRepo(body.repo.owner, body.repo.name),
+    repo: await gitHubService.getRepo(body.repo.owner, body.repo.name, accessToken),
     team: await gitHubClient.getTeam(body.teamId),
     dateTime: _validateDateTime(body.dateTime)
   } as IDeployment;

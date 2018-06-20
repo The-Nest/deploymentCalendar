@@ -6,13 +6,13 @@ import { MembersService } from 'services/members.service';
 export function LoginControllerFactory(gitHubService: GitHubService, membersService: MembersService) {
   const router = Router();
   router.use(
-    '/login/oauth',
+    '/oauth',
     (req: Request, res: Response, next: NextFunction) => {
       gitHubService.getAccessToken(req.query.code, req.query.state).then(token => res.send(token));
   });
 
   router.use(
-    '/login',
+    '/',
     (req: Request, res: Response, next: NextFunction) => {
       const authHeader = req.headers['authorization'] as string;
       gitHubService.getAuthorizationForToken(authHeader).then(async (result) => {

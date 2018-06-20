@@ -4,6 +4,7 @@ import { LinkHelper } from '../link-helper/link-helper';
 import { isNullOrUndefined } from 'util';
 import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
+import { GitHubScopes } from '../../enums/github-scopes';
 
 @Injectable()
 export class GitHubService {
@@ -13,7 +14,7 @@ export class GitHubService {
   public user: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   constructor(private _router: Router, private _linkHelper: LinkHelper, private _http: HttpClient) { }
 
-  public generateAuthenticationURL(redirectUri?: string) {
+  public generateAuthenticationURL(scopes: GitHubScopes[] = [], redirectUri?: string) {
     if (isNullOrUndefined(this._state)) {
       this._state = localStorage.getItem('gh:state');
       if (isNullOrUndefined(this._state)) {
@@ -21,7 +22,7 @@ export class GitHubService {
         localStorage.setItem('gh:state', this._state);
       }
     }
-    return this._linkHelper.gitHubAuthorization('Iv1.0047e1810d2de496', this._state, redirectUri);
+    return this._linkHelper.gitHubAuthorization('85b93559560fd5e506b9', this._state, scopes, redirectUri);
   }
 
   public logout() {

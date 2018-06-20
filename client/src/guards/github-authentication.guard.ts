@@ -3,6 +3,7 @@ import { GitHubService, LoginState } from '../services/github/github.service';
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 import { isNullOrUndefined } from 'util';
 import { Location } from '@angular/common';
+import { GitHubScopes } from '../enums/github-scopes';
 
 @Injectable()
 export class GitHubAuthenticationGuard implements CanActivate {
@@ -26,7 +27,13 @@ export class GitHubAuthenticationGuard implements CanActivate {
 
     return this._gitHubService.login().then(loginResult => {
       if (loginResult.state === LoginState.BAD_TOKEN) {
-        window.location.href = this._gitHubService.generateAuthenticationURL(window.location.href);
+        window.location.href = this._gitHubService.generateAuthenticationURL(
+          [
+            GitHubScopes.USER,
+            GitHubScopes.REPO,
+            GitHubScopes.READ_ORG
+          ],
+          window.location.href);
         return false;
       }
       if (loginResult.state === LoginState.SUCCESS) {

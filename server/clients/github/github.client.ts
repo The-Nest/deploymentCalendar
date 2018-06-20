@@ -1,5 +1,4 @@
 import * as https from 'https';
-import * as jwt from 'jsonwebtoken';
 import { isUndefined, isNullOrUndefined } from 'util';
 
 import { IGitHubClient, IGitHubResponse } from '../../types/clients/github.client';
@@ -31,18 +30,6 @@ export class GitHubClient implements IGitHubClient {
       };
     }
     throw new Error('Branch not found');
-  }
-
-  public async jsonApplicationRequest(method: string, url: string, body?: any): Promise<IGitHubResponse> {
-    const token = this._getJwtToken();
-    return this._jsonRequest(method, url, gitHubApiRequestType.Applicaton, token, body);
-  }
-
-  public async jsonInstallationRequest(method: string, url: string, installationOwner: string, body?: any): Promise<IGitHubResponse> {
-    const jwtToken = this._getJwtToken();
-    const installationId = await this._getInstallationIdForOwner(installationOwner, jwtToken);
-    const token = await this._getInstallationAccessToken(installationId, jwtToken);
-    return this._jsonRequest(method, url, gitHubApiRequestType.Installation, token, body);
   }
 
   public async jsonUserRequest(method: string, url: string, accessToken: string, body?: any): Promise<IGitHubResponse> {
@@ -163,28 +150,6 @@ export class GitHubClient implements IGitHubClient {
 
   private _isSuccessStatusCode(statusCode: number) {
     return (statusCode >= 200) && (statusCode <= 299);
-  }
-
-  private _getJwtToken(): string {
-    const issueSeconds = Math.floor(Date.now() / 1000);
-    const expirySeconds = issueSeconds + 60;
-    const payload = {
-      iat: issueSeconds,
-      exp: expirySeconds,
-      iss: this._id
-    };
-    return jwt.sign(payload, this._key, { algorithm: 'RS256' });
-  }
-
-  private _getInstallationAccessToken(installationId: number, token: string): Promise<string> {
-    return this.jsonApplicationRequest('POST', `/installations/${installationId}/access_tokens`)
-      .then(result => result.data.token);
-  }
-
-  private async _getInstallationIdForOwner(owner: string, token: string): Promise<number> {
-    const installations = await this.jsonApplicationRequest('GET', `/app/installations`);
-    const match = installations.data.find(installation => installation.account.login === owner);
-    return match.id;
   }
 }
 
