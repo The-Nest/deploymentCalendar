@@ -40,14 +40,14 @@ export class GitHubService {
     this._gitHubClient.graphQlRequest(
       `
       query {
-        repositoryOwner(login: "cgolobic") {
-          public: repositories(affiliations: [COLLABORATOR], first: 1, privacy: PUBLIC) {
+        viewer {
+          public: repositories(affiliations: [COLLABORATOR, OWNER], first: 50, privacy: PUBLIC) {
             nodes {
               name,
               isPrivate
             }
           },
-          private: repositories(affiliations: [COLLABORATOR], first: 1, privacy: PRIVATE) {
+          private: repositories(affiliations: [COLLABORATOR, OWNER], first: 50, privacy: PRIVATE) {
             nodes {
               name,
               isPrivate
