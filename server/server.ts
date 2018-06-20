@@ -22,9 +22,7 @@ import { MembersRepository } from './repositories/members.repository';
 import { GitHubControllerFactory } from './controllers/api/github/github.controller';
 import { GitHubService } from './services/github.service';
 import { AuthenticationControllerFactory } from './controllers/api/authentication/authentication.controller';
-import { OrganizationMiddlewareFactory } from './middleware/organization-middleware';
-import { userMiddlewareFactory } from './middleware/user-middleware';
-import { ScopeMiddlewareFactory } from './middleware/scope-middleware';
+import { OwnerMiddlewareFactory } from './middleware/owner-middleware';
 
 async function init() {
   dotenv.config();
@@ -55,15 +53,9 @@ async function init() {
     AuthenticationControllerFactory(githubService, membersService),
     ApiAuthenticationHandlerFactory(githubService).use(
       '/:login',
-      ScopeMiddlewareFactory(githubService).use(
+      OwnerMiddlewareFactory(githubService).use(
         apiControllers
       )
-      // userMiddlewareFactory(githubService).use(
-      //   '/user/:user',
-      //   apiControllers),
-      // OrganizationMiddlewareFactory(githubService).use(
-      //   'org/:org',
-      //   apiControllers)
     )
   ),
   app.use('/api/*', (req: express.Request, res: express.Response) => res.sendStatus(404));

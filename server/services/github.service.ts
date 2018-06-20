@@ -25,17 +25,6 @@ export class GitHubService {
     ).then(response => response.data);
   }
 
-  public checkMembership(organization: string, username: string, accessToken: string) {
-    return this._gitHubClient.jsonUserRequest(
-      'GET',
-      `/orgs/${organization}/members/${username}`,
-      accessToken
-    ).then(response => {
-      console.log(response);
-      return response.statusCode !== 404;
-    });
-  }
-
   public getScope(login: string, accessToken: string) {
     this._gitHubClient.graphQlRequest(
       `
@@ -87,18 +76,11 @@ export class GitHubService {
     );
   }
 
-  public getOrganizationInstallation(organization: string) {
+  isAppInstalled(login: string) {
     return this._gitHubClient.jsonApplicationRequest(
       'GET',
-      `/orgs/${organization}/installation`
-    ).then(response => response.data);
-  }
-
-  public getUserInstallation(user: string) {
-    return this._gitHubClient.jsonApplicationRequest(
-      'GET',
-      `/users/${user}/installation`
-    ).then(response => response.data);
+      `/users/${login}/installation`
+    ).then(res => res.statusCode === 200);
   }
 
   public validateAccessToken(token: string) {

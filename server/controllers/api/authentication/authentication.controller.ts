@@ -21,6 +21,7 @@ export function AuthenticationControllerFactory(gitHubService: GitHubService, me
         res.send(member);
       } else if (result.statusCode === 404) {
         // bad token (invalid or revoked)
+        // TODO: move this to a route protected by the token middleware...
         res.sendStatus(401);
       }
       res.sendStatus(500);
