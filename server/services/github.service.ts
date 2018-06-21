@@ -26,6 +26,37 @@ export class GitHubService {
     ).then(response => response.data);
   }
 
+  public getRepos(accessToken: string, owner?: string): Promise<string[]> {
+    let query = `query {
+      viewer {
+        repositories(first: 100) {
+          pageInfo {
+            hasNextPage
+          }
+          nodes{
+            name
+          }
+        }
+      }
+    }`;
+    if (!isNullOrUndefined(owner)) {
+      query = `query {
+        repositoryOwner(login: "${owner}") {
+          repositories(first: 100) {
+            pageInfo {
+              hasNextPage
+            }
+            nodes{
+              name
+            }
+          }
+        }
+      }`;
+    }
+    return this._gitHubClient.graphQlRequest(query, accessToken)
+      .then(res => res.data.data.repositoryOwner.repositories.nodes.map(node => node.name));
+  }
+
   public getScope(login: string, accessToken: string) {
     this._gitHubClient.graphQlRequest(
       `

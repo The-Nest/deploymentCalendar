@@ -23,6 +23,7 @@ import { GitHubControllerFactory } from './controllers/api/github/github.control
 import { GitHubService } from './services/github.service';
 import { OwnerMiddlewareFactory } from './middleware/owner-middleware';
 import { LoginControllerFactory } from './controllers/api/login/login.controller';
+import { RepositoryMiddlewareFactory } from './middleware/repository-middleware';
 
 async function init() {
   dotenv.config();
@@ -42,7 +43,7 @@ async function init() {
   const app: express.Application = express();
   const apiControllers = [
     GitHubControllerFactory(githubService),
-    DeploymentsControllerFactory(deploymentsService, membersRepository),
+    DeploymentsControllerFactory(deploymentsService, (r) => ({ login: r.params.login, repo: r.params.repo })),
     MembersControllerFactory(membersService)
   ];
   app.use(cors());
@@ -55,6 +56,11 @@ async function init() {
       '/:login',
       OwnerMiddlewareFactory(githubService, (r) => ({ login: r.params.login })).use(
         apiControllers
+      ).use(
+        '/:repo',
+        RepositoryMiddlewareFactory(githubService, (r) => ({ login: r.params.login, repo: r.params.repo })).use(
+          apiControllers
+        )
       )
     )
   ),

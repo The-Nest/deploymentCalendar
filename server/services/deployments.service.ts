@@ -33,9 +33,18 @@ export class DeploymentsService {
     return this._deploymentsRepository.insert(mappedDeployment).then(id => id);
   }
 
-  public getSummaries() {
+  public async getSummaries(accessToken: string, login?: string, repo?: string) {
+    const filter = { };
+    if (isNullOrUndefined(repo)) {
+      const repos = await this._gitHubService.getRepos(accessToken, login);
+      console.log(repos);
+      filter['repo.name'] = { $in: repos };
+    }
+    if (!isNullOrUndefined(repo)) {
+      filter['repo.name'] = repo;
+    }
     return this._deploymentsRepository.filter(
-      { },
+      filter,
       {
         projection: {
           name: true,

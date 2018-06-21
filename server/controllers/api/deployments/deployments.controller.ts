@@ -1,11 +1,8 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { ObjectID } from 'mongodb';
 
 import { IDeploymentSummary } from '../../../../shared/types/deployment/deployment-summary';
 import { IDeployment } from '../../../../shared/types/deployment/deployment';
-import { IGitHubClient } from '../../../types/clients/github.client';
 import { validateObjectId } from '../../../utils/validation-utils';
-import { IMembersRepository } from 'types/repositories/members.repository';
 import { BranchesControllerFactory } from './branches/branches.controller';
 import { DeploymentsService } from 'services/deployments.service';
 import { IntegrationBranchControllerFactory } from './integration-branch/integration-branch.controller';
@@ -13,8 +10,8 @@ import { QAControllerFactory } from './qa/qa.controller';
 
 export function DeploymentsControllerFactory(
   deploymentsService: DeploymentsService,
-  membersRepository: IMembersRepository): Router {
-  const router = Router();
+  paramMapper: (req: Request) => { login: string, repo: string }): Router {
+  const router = Router({ mergeParams: true });
   const resourceRoute = '/deployments';
 
   router.use(`${resourceRoute}/:id/integration-branch`, IntegrationBranchControllerFactory(deploymentsService.integrationBranch));
@@ -29,9 +26,13 @@ export function DeploymentsControllerFactory(
 
   router.get(
     `${resourceRoute}/summaries`,
-    (req: Request, res: Response, next: NextFunction) => deploymentsService.getSummaries()
-      .then((summaries: IDeploymentSummary[]) => res.send(summaries))
-      .catch(next)
+    (req: Request, res: Response, next: NextFunction) => {
+      const authHeader = req.headers['authorization'] as string;
+      const paramMap = paramMapper(req);
+      deploymentsService.getSummaries(authHeader, paramMap.login, paramMap.repo)
+        .then((summaries: IDeploymentSummary[]) => res.send(summaries))
+        .catch(next);
+    }
   );
 
   router.get(
