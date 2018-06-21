@@ -22,8 +22,10 @@ export function LoginControllerFactory(gitHubService: GitHubService, membersServ
             member: member,
             login: result.data.user
           });
+          return;
         } else if (result.statusCode === 404) {
           res.sendStatus(401);
+          return;
         }
         res.sendStatus(500);
       });

@@ -8,6 +8,10 @@ const appRoutes: Routes = [
   { path: '',
     component: PerchHomePage
   },
+  { path: ':login/deployment/all',
+    component: PerchAllDeploymentsPage,
+    canActivate: [ GitHubAuthenticationGuard ]
+  },
   { path: 'deployment/all',
     component: PerchAllDeploymentsPage,
     canActivate: [ GitHubAuthenticationGuard ]

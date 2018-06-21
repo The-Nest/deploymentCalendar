@@ -1,2 +1,2 @@
-Perch All Deployments
+<span *ngIf="!isUserRoute">All {{login}} Deployments</span>
 <perch-calendar-card *ngFor="let summary of deploymentSummaries" [deploymentSummary]="summary"></perch-calendar-card>
