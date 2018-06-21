@@ -10,6 +10,7 @@ export class GitHubService {
   private _state: string = localStorage.getItem('gh:state');
   public token: string = localStorage.getItem('gh:token');
   public authenticated: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(this._isAuthenticated());
+  public user: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   constructor(private _router: Router, private _linkHelper: LinkHelper, private _http: HttpClient) { }
 
   public generateAuthenticationURL(redirectUri?: string) {
@@ -46,20 +47,15 @@ export class GitHubService {
           observe: 'response'
         }
       ).subscribe(
-        (res: HttpResponse<any>) => resolve({
-          state: LoginState.SUCCESS,
-          data: res.body
-        }),
+        (res: HttpResponse<any>) => {
+          this.user.next(res.body);
+          resolve({
+            state: LoginState.SUCCESS,
+            data: res.body
+          })
+        },
         ((err: HttpErrorResponse) => {
-          if (err.status === 404) {
-            resolve({
-              state: LoginState.UNREGISTERED
-            });
-          } else if (err.status === 403) {
-            resolve({
-              state: LoginState.FORBIDDEN
-            });
-          } else if (err.status === 401) {
+          if (err.status === 401) {
             resolve({
               state: LoginState.BAD_TOKEN
             });

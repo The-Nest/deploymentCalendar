@@ -10,10 +10,8 @@ export class GitHubClient implements IGitHubClient {
   private _installationIdCache = new MemoryCache<number>();
   private _installationAccessTokenCache = new MemoryCache<string>();
 
-  constructor(private _userAgent: string, private _key: string | Buffer, private _id: number) {
-    let t = this._getJwtToken();
-    console.log(t);
-  }
+  constructor(private _userAgent: string, private _key: string | Buffer, private _id: number) { }
+
   public async getTeam(teamId: number) {
     if (teamId === 1) {
       return {
@@ -72,7 +70,6 @@ export class GitHubClient implements IGitHubClient {
           'Authorization': requestType === gitHubApiRequestType.Applicaton ? `Bearer ${token}` : `token ${token}`
         }
       };
-      console.log(options);
       return new Promise<IGitHubResponse>((resolve) => {
         const request = https.request(options, (res) => {
           try {

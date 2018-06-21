@@ -21,8 +21,8 @@ import { DeploymentsRepository } from './repositories/deployments.repository';
 import { MembersRepository } from './repositories/members.repository';
 import { GitHubControllerFactory } from './controllers/api/github/github.controller';
 import { GitHubService } from './services/github.service';
-import { AuthenticationControllerFactory } from './controllers/api/authentication/authentication.controller';
 import { OwnerMiddlewareFactory } from './middleware/owner-middleware';
+import { LoginControllerFactory } from './controllers/api/login/login.controller';
 
 async function init() {
   dotenv.config();
@@ -50,10 +50,10 @@ async function init() {
   app.use(express.static(path.join(__dirname, '../client')));
   app.use(
     '/api',
-    AuthenticationControllerFactory(githubService, membersService),
+    LoginControllerFactory(githubService, membersService),
     ApiAuthenticationHandlerFactory(githubService).use(
       '/:login',
-      OwnerMiddlewareFactory(githubService).use(
+      OwnerMiddlewareFactory(githubService, (r) => ({ login: r.params.login })).use(
         apiControllers
       )
     )

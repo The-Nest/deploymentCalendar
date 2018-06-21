@@ -3,6 +3,8 @@ import { LinkHelper } from '../../services/link-helper/link-helper';
 import { HttpClient } from '@angular/common/http';
 import { IDeploymentSummary } from '../../../../shared/types/deployment/deployment-summary';
 import { GitHubService } from '../../services/github/github.service';
+import { isNullOrUndefined } from 'util';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'perch-all-deployments',
@@ -18,13 +20,17 @@ export class PerchAllDeploymentsPage {
     private _linkHelper: LinkHelper) { }
 
   ngOnInit() {
-    this._http.get(
-      this._linkHelper.getDeploymentSummaries(true, 'cgolobic'),
-      {
-        headers: {
-          'Authorization': this._gitHubService.token
+    this._gitHubService.user.pipe(
+      filter((value, index) => !isNullOrUndefined(value))
+    ).subscribe(user => {
+      this._http.get(
+        this._linkHelper.getDeploymentSummaries(user.login.login),
+        {
+          headers: {
+            'Authorization': this._gitHubService.token
+          }
         }
-      }
-    ).subscribe((result: IDeploymentSummary[]) => this.deploymentSummaries = result);
+      ).subscribe((result: IDeploymentSummary[]) => this.deploymentSummaries = result);
+    });
   }
 }

@@ -12,12 +12,12 @@ export class LinkHelper {
     return '/deployment/create';
   }
 
-  public getDeploymentSummaries(user: boolean, login: string): string {
-    return `http://localhost:3001/api/${user ? 'user' : 'org'}/${login}/deployments/summaries`;
+  public getDeploymentSummaries(login: string): string {
+    return `http://localhost:3001/api/${login}/deployments/summaries`;
   }
 
   public login(): string {
-    return 'http://localhost:3001/api/authentication/login'
+    return 'http://localhost:3001/api/login'
   }
 
   public gitHubAuthorization(clientId: string, state: string, redirectUri?: string): string {
@@ -28,6 +28,6 @@ export class LinkHelper {
   }
 
   public getGitHubAccessToken(code: string, state: string): string {
-    return `http://localhost:3001/api/authentication/access_token?code=${code}&state=${state}`;
+    return `http://localhost:3001/api/login/oauth?code=${code}&state=${state}`;
   }
 }

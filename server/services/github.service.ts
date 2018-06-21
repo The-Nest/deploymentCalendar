@@ -47,7 +47,6 @@ export class GitHubService {
       `,
       accessToken
     ).then(response => {
-      console.log(JSON.stringify(response));
       return response;
     });
   }

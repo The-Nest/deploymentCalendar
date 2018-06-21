@@ -29,15 +29,10 @@ export class GitHubAuthenticationGuard implements CanActivate {
         window.location.href = this._gitHubService.generateAuthenticationURL(window.location.href);
         return false;
       }
-      if (loginResult.state === LoginState.FORBIDDEN) {
-        this._gitHubService.logout();
-        return false;
-      }
-      if (loginResult.state === LoginState.UNREGISTERED) {
-        // TODO: redirect to registration page...
+      if (loginResult.state === LoginState.SUCCESS) {
         return true;
       }
-      return true;
+      return false;
     });
   }
 }
