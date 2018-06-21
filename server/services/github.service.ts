@@ -1,5 +1,6 @@
 import { IGitHubClient } from '../types/clients/github.client';
 import { IRepository } from '../../shared/types/deployment/repository';
+import { isNullOrUndefined } from 'util';
 
 export class GitHubService {
   constructor(private _gitHubClient: IGitHubClient) { }
@@ -75,10 +76,15 @@ export class GitHubService {
     );
   }
 
-  isAppInstalled(login: string) {
+  isAppInstalled(login: string, repo?: string) {
+    let path = `/users/${login}/installation`;
+    if (!isNullOrUndefined(repo)) {
+
+      path = `/repos/${login}/${repo}/installation`;
+    }
     return this._gitHubClient.jsonApplicationRequest(
       'GET',
-      `/users/${login}/installation`
+      path
     ).then(res => res.statusCode === 200);
   }
 
