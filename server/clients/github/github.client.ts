@@ -33,17 +33,16 @@ export class GitHubClient implements IGitHubClient {
   }
 
   public async jsonUserRequest(method: string, url: string, accessToken: string, body?: any): Promise<IGitHubResponse> {
-    return this._jsonRequest(method, url, gitHubApiRequestType.User, accessToken, body);
+    return this._jsonRequest(method, url, accessToken, body);
   }
 
   public graphQlRequest(query: string, accessToken: string): Promise<IGitHubResponse> {
-    return this._jsonRequest('POST', '/graphql', gitHubApiRequestType.Applicaton, accessToken, { query });
+    return this._jsonRequest('POST', '/graphql', accessToken, { query });
   }
 
   private async _jsonRequest(
     method: string,
     url: string,
-    requestType: gitHubApiRequestType,
     token: string,
     body?: any): Promise<IGitHubResponse> {
       const options: https.RequestOptions = {
@@ -52,9 +51,8 @@ export class GitHubClient implements IGitHubClient {
         method: method,
         headers: {
           'User-Agent': this._userAgent,
-          'Accept': requestType === gitHubApiRequestType.Applicaton ?
-            'application/vnd.github.machine-man-preview+json' : 'application/vnd.github+json',
-          'Authorization': requestType === gitHubApiRequestType.Applicaton ? `Bearer ${token}` : `token ${token}`
+          'Accept': 'application/vnd.github+json',
+          'Authorization': `token ${token}`
         }
       };
       return new Promise<IGitHubResponse>((resolve) => {
@@ -151,10 +149,4 @@ export class GitHubClient implements IGitHubClient {
   private _isSuccessStatusCode(statusCode: number) {
     return (statusCode >= 200) && (statusCode <= 299);
   }
-}
-
-enum gitHubApiRequestType {
-  User,
-  Applicaton,
-  Installation
 }

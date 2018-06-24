@@ -53,6 +53,7 @@ export class GitHubService {
         }
       }`;
     }
+    // TODO: handle when an organization has not enabled 3rd party access
     return this._gitHubClient.graphQlRequest(query, accessToken)
       .then(res => res.data.data.repositoryOwner.repositories.nodes.map(node => node.name));
   }
