@@ -9,7 +9,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "build": "build:client && build:server",
-    "build:server": "rimraf dist/server && cd server && tsc && copyfiles private-key.pem ../dist/server",
+    "build:server": "rimraf dist/server && cd server && tsc",
     "start:server": "node dist/server/server.js",
     "test:server": "cd server && ts-node ../node_modules/jasmine/bin/jasmine --config=jasmine.json",
     "webhook-proxy": "smee -u https://smee.io/r1Ycr9t2gjOFLMN5 --port 3001 --path /api/github/webhook"
@@ -48,7 +48,6 @@
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "~8.9.4",
     "codelyzer": "~4.2.1",
-    "copyfiles": "^2.0.0",
     "jasmine": "^3.1.0",
     "jasmine-core": "~2.99.1",
     "jasmine-spec-reporter": "~4.2.1",

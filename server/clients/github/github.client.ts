@@ -6,10 +6,8 @@ import { MemoryCache } from './memory-cache';
 
 
 export class GitHubClient implements IGitHubClient {
-  private _installationIdCache = new MemoryCache<number>();
-  private _installationAccessTokenCache = new MemoryCache<string>();
 
-  constructor(private _userAgent: string, private _key: string | Buffer, private _id: number) { }
+  constructor(private _userAgent: string) { }
 
   public async getTeam(teamId: number) {
     if (teamId === 1) {
@@ -62,6 +60,7 @@ export class GitHubClient implements IGitHubClient {
             let fullBody = '';
             res.on('data', chunk => fullBody += chunk);
             res.on('end', () => {
+              console.log(fullBody);
               const jsonBody = JSON.parse(fullBody);
               const response: IGitHubResponse =
                 (this._isSuccessStatusCode(res.statusCode) ? { data: jsonBody } : { error: jsonBody }) as IGitHubResponse;

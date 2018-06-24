@@ -25,8 +25,7 @@ import { LoginControllerFactory } from './controllers/api/login/login.controller
 
 async function init() {
   dotenv.config();
-  const gitHubKey = fs.readFileSync(path.join(__dirname, 'private-key.pem'));
-  const gitHubClient = new GitHubClient('the-perch', gitHubKey, +process.env.ISSUER_ID);
+  const gitHubClient = new GitHubClient('the-perch');
   const mongoClient = await(new MongoClient(process.env.COSMOSDB_KEY).connect());
 
   const deploymentsRepository = new DeploymentsRepository(
