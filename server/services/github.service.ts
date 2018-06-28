@@ -1,4 +1,4 @@
-import { IGitHubClient } from '../types/clients/github.client';
+import { IGitHubClient, IGraphQLResponse } from '../types/clients/github.client';
 import { IRepository } from '../../shared/types/deployment/repository';
 import { isNullOrUndefined } from 'util';
 
@@ -6,7 +6,7 @@ export class GitHubService {
   constructor(private _gitHubClient: IGitHubClient) { }
 
   public getBranch(owner: string, repo: string, branch: string, authToken: string) {
-    return this._gitHubClient.jsonUserRequest(
+    return this._gitHubClient.restRequest(
       'GET',
       `/repos/${owner}/${repo}/branches/${branch}`,
       authToken
@@ -19,7 +19,7 @@ export class GitHubService {
   }
 
   public getRepo(owner: string, repo: string, authToken: string) {
-    return this._gitHubClient.jsonUserRequest(
+    return this._gitHubClient.restRequest(
       'GET',
       `/repos/${owner}/${repo}`,
       authToken,
@@ -55,7 +55,12 @@ export class GitHubService {
     }
     // TODO: handle when an organization has not enabled 3rd party access
     return this._gitHubClient.graphQlRequest(query, accessToken)
-      .then(res => res.data.data.repositoryOwner.repositories.nodes.map(node => node.name));
+      .then((graphQLResponse: IGraphQLResponse) => {
+        if (!isNullOrUndefined(graphQLResponse.errors)) {
+          return null;
+        }
+        return graphQLResponse.data.repositoryOwner.repositories.nodes.map(node => node.name);
+      });
   }
 
   public getScope(login: string, accessToken: string) {

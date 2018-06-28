@@ -1,7 +1,7 @@
 import * as https from 'https';
 import { isUndefined, isNullOrUndefined } from 'util';
 
-import { IGitHubClient, IGitHubResponse } from '../../types/clients/github.client';
+import { IGitHubClient, IRestResponse, IGraphQLResponse } from '../../types/clients/github.client';
 import { MemoryCache } from './memory-cache';
 
 
@@ -30,19 +30,32 @@ export class GitHubClient implements IGitHubClient {
     throw new Error('Branch not found');
   }
 
-  public async jsonUserRequest(method: string, url: string, accessToken: string, body?: any): Promise<IGitHubResponse> {
-    return this._jsonRequest(method, url, accessToken, body);
+  public async restRequest(method: string, url: string, accessToken: string, body?: any): Promise<IRestResponse> {
+    return this._jsonRequest(method, url, accessToken, body).then((apiResponse: IGitHubAPIResponse) => {
+      const restResponse: IRestResponse = {
+        statusCode: apiResponse.statusCode
+      };
+      this._isSuccessStatusCode(apiResponse.statusCode) ? restResponse.data = apiResponse.body : restResponse.error = apiResponse.body;
+      return restResponse;
+    });
   }
 
-  public graphQlRequest(query: string, accessToken: string): Promise<IGitHubResponse> {
-    return this._jsonRequest('POST', '/graphql', accessToken, { query });
+  public graphQlRequest(query: string, accessToken: string): Promise<IGraphQLResponse> {
+    return this._jsonRequest('POST', '/graphql', accessToken, { query }).then((apiResponse: IGitHubAPIResponse) => {
+      const graphQLResponse: IGraphQLResponse = {
+        statusCode: apiResponse.statusCode,
+        data: apiResponse.body.data,
+        errors: apiResponse.body.errors
+      };
+      return graphQLResponse;
+    });
   }
 
   private async _jsonRequest(
     method: string,
     url: string,
     token: string,
-    body?: any): Promise<IGitHubResponse> {
+    body?: any): Promise<IGitHubAPIResponse> {
       const options: https.RequestOptions = {
         hostname: 'api.github.com',
         path: url,
@@ -53,25 +66,19 @@ export class GitHubClient implements IGitHubClient {
           'Authorization': `token ${token}`
         }
       };
-      return new Promise<IGitHubResponse>((resolve) => {
+      return new Promise<IGitHubAPIResponse>((resolve) => {
         const request = https.request(options, (res) => {
           try {
             res.setEncoding('utf8');
             let fullBody = '';
             res.on('data', chunk => fullBody += chunk);
             res.on('end', () => {
-              console.log(fullBody);
               const jsonBody = JSON.parse(fullBody);
-              const response: IGitHubResponse =
-                (this._isSuccessStatusCode(res.statusCode) ? { data: jsonBody } : { error: jsonBody }) as IGitHubResponse;
-              response.statusCode = res.statusCode;
+              const response: IGitHubAPIResponse = { body: jsonBody, statusCode: res.statusCode };
               resolve(response);
             });
           } catch (err) {
-            resolve({
-              statusCode: 500,
-              error: err
-            } as IGitHubResponse);
+            resolve({ body: err, statusCode: 500 });
           }
         });
         if (!isNullOrUndefined(body)) {
@@ -113,7 +120,7 @@ export class GitHubClient implements IGitHubClient {
     });
   }
 
-  public getAuthorizationForToken(clientId: string, clientSecret: string, accessToken: string): Promise<IGitHubResponse> {
+  public getAuthorizationForToken(clientId: string, clientSecret: string, accessToken: string): Promise<IRestResponse> {
     const urlPath = `/applications/${clientId}/tokens/${accessToken}`;
     const encodedAuth = new Buffer(`${clientId}:${clientSecret}`).toString('base64');
     const options: https.RequestOptions = {
@@ -133,9 +140,9 @@ export class GitHubClient implements IGitHubClient {
           res.on('data', chunk => fullBody += chunk);
           res.on('end', () => {
             const jsonBody = JSON.parse(fullBody);
-            const response: IGitHubResponse =
-                (this._isSuccessStatusCode(res.statusCode) ? { data: jsonBody } : { error: jsonBody }) as IGitHubResponse;
-              response.statusCode = res.statusCode;
+            const response: IRestResponse =
+              (this._isSuccessStatusCode(res.statusCode) ? { data: jsonBody } : { error: jsonBody }) as IRestResponse;
+            response.statusCode = res.statusCode;
             resolve(response);
           });
       });
@@ -148,4 +155,9 @@ export class GitHubClient implements IGitHubClient {
   private _isSuccessStatusCode(statusCode: number) {
     return (statusCode >= 200) && (statusCode <= 299);
   }
+}
+
+interface IGitHubAPIResponse {
+  body: any;
+  statusCode: number;
 }

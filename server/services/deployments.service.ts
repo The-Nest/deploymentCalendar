@@ -37,7 +37,9 @@ export class DeploymentsService {
     const filter = { };
     if (isNullOrUndefined(repo)) {
       const repos = await this._gitHubService.getRepos(accessToken, login);
-      console.log(repos);
+      if (isNullOrUndefined(repos)) {
+        return repos;
+      }
       filter['repo.name'] = { $in: repos };
     }
     if (!isNullOrUndefined(repo)) {
