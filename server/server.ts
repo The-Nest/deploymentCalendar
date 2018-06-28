@@ -1,6 +1,5 @@
 import * as express from 'express';
 import * as path from 'path';
-import * as fs from 'fs';
 import * as dotenv from 'dotenv';
 import * as bodyParser from 'body-parser';
 import { MongoClient } from 'mongodb';
@@ -22,6 +21,7 @@ import { MembersRepository } from './repositories/members.repository';
 import { GitHubControllerFactory } from './controllers/api/github/github.controller';
 import { GitHubService } from './services/github.service';
 import { LoginControllerFactory } from './controllers/api/login/login.controller';
+import { RepositoryMiddlewareFactory } from './middleware/repository-middleware';
 
 async function init() {
   dotenv.config();
@@ -42,9 +42,11 @@ async function init() {
   const ownerRouter: express.Router = express.Router();
   const repoRouter: express.Router = express.Router();
 
+  const paramMapper = (request: express.Request) => ({ owner: request.params.owner, repo: request.params.repo });
+
   const apiControllers = [
     GitHubControllerFactory(githubService),
-    DeploymentsControllerFactory(deploymentsService, (r) => ({ login: r.params.owner, repo: r.params.repo })),
+    DeploymentsControllerFactory(deploymentsService, paramMapper),
     MembersControllerFactory(membersService)
   ];
   app.use(cors());
@@ -54,12 +56,15 @@ async function init() {
 
   apiRouter.use('/', ApiAuthenticationHandlerFactory(githubService));
   ownerRouter.use('/:owner', apiControllers);
-  repoRouter.use('/:owner/:repo', apiControllers);
+  repoRouter.use(
+    '/:owner/:repo',
+    [
+      RepositoryMiddlewareFactory(githubService, paramMapper),
+      ...apiControllers
+    ]);
   apiRouter.use(ownerRouter, repoRouter);
   apiRouter.use('/*', (req: express.Request, res: express.Response) => res.sendStatus(404));
   app.use('/api', apiRouter);
-
-  // app.use('/*', (req: express.Request, res: express.Response) => res.sendStatus(404));
   app.use('*', AppController);
   app.use(ExceptionHandler);
 

@@ -6,7 +6,6 @@ import { IGitHubClient } from 'types/clients/github.client';
 import { IDeploymentsRepository } from '../types/repositories/deployments.repository';
 import { mapDeploymentPayloadToDocument } from '../mappers/deployment-mappers';
 import { IMembersRepository } from 'types/repositories/members.repository';
-import { IDeployment } from '../../shared/types/deployment/deployment';
 import { IntegrationBranchService } from './integration-branch.service';
 import { isNullOrUndefined } from 'util';
 import { QAService } from './qa.service';

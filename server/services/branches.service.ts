@@ -4,7 +4,6 @@ import { isNullOrUndefined } from 'util';
 import { IBranchPayload } from '../../shared/types/deployment/payloads/branch';
 import { IGitHubClient } from 'types/clients/github.client';
 import { IBranch } from '../../shared/types/deployment/branch';
-import { IDeployment } from '../../shared/types/deployment/deployment';
 import { PullRequestStatus } from '../../shared/enums/deployment/pull-request-status';
 import { IMember } from '../../shared/types/member/member';
 import { IDeploymentsRepository } from 'types/repositories/deployments.repository';

@@ -1,5 +1,4 @@
 import { IGitHubClient, IGraphQLResponse } from '../types/clients/github.client';
-import { IRepository } from '../../shared/types/deployment/repository';
 import { isNullOrUndefined } from 'util';
 
 export class GitHubService {

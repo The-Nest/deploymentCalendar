@@ -10,7 +10,7 @@ import { QAControllerFactory } from './qa/qa.controller';
 
 export function DeploymentsControllerFactory(
   deploymentsService: DeploymentsService,
-  paramMapper: (req: Request) => { login: string, repo: string }): Router {
+  paramMapper: (req: Request) => { owner: string, repo: string }): Router {
   const router = Router({ mergeParams: true });
   const resourceRoute = '/deployments';
 
@@ -31,7 +31,7 @@ export function DeploymentsControllerFactory(
     (req: Request, res: Response, next: NextFunction) => {
       const authHeader = req.headers['authorization'] as string;
       const paramMap = paramMapper(req);
-      deploymentsService.getSummaries(authHeader, paramMap.login, paramMap.repo)
+      deploymentsService.getSummaries(authHeader, paramMap.owner, paramMap.repo)
         .then((summaries: IDeploymentSummary[]) => res.send(summaries))
         .catch(next);
     }
