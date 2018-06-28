@@ -54,7 +54,7 @@ export class GitHubService {
       }`;
     }
     // TODO: handle when an organization has not enabled 3rd party access
-    return this._gitHubClient.graphQlRequest(query, accessToken)
+    return this._gitHubClient.graphQLRequest(query, accessToken)
       .then((graphQLResponse: IGraphQLResponse) => {
         if (!isNullOrUndefined(graphQLResponse.errors)) {
           return null;
@@ -64,7 +64,7 @@ export class GitHubService {
   }
 
   public getScope(login: string, accessToken: string) {
-    this._gitHubClient.graphQlRequest(
+    this._gitHubClient.graphQLRequest(
       `
       query {
         viewer {

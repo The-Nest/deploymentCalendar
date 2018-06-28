@@ -40,7 +40,7 @@ export class GitHubClient implements IGitHubClient {
     });
   }
 
-  public graphQlRequest(query: string, accessToken: string): Promise<IGraphQLResponse> {
+  public graphQLRequest(query: string, accessToken: string): Promise<IGraphQLResponse> {
     return this._jsonRequest('POST', '/graphql', accessToken, { query }).then((apiResponse: IGitHubAPIResponse) => {
       const graphQLResponse: IGraphQLResponse = {
         statusCode: apiResponse.statusCode,
