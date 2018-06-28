@@ -17,6 +17,7 @@ export class PerchAllDeploymentsPage {
   public deploymentSummaries: IDeploymentSummary[] = [];
   public isUserRoute = true;
   public login = '';
+  public thirdPartyAccessDenied = false;
 
   constructor(
     private _http: HttpClient,
@@ -43,7 +44,12 @@ export class PerchAllDeploymentsPage {
             'Authorization': this._gitHubService.token
           }
         }
-      ).subscribe((result: IDeploymentSummary[]) => this.deploymentSummaries = result);
+      ).subscribe((result: IDeploymentSummary[]) => {
+        this.deploymentSummaries = result;
+        if (isNullOrUndefined(this.deploymentSummaries)) {
+          this.thirdPartyAccessDenied = true;
+        }
+      });
     });
   }
 }
