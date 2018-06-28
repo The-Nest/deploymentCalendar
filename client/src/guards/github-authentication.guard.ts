@@ -12,7 +12,6 @@ export class GitHubAuthenticationGuard implements CanActivate {
 
   async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
     // get an access token if we're hitting the route off a redirect from GitHub:
-    // TODO: handle expired codes (backend responsibility)
     if (!isNullOrUndefined(route.queryParams['code']) && !isNullOrUndefined(route.queryParams['state'])) {
       try {
         await this._gitHubService.completeAuthentication(route.queryParams['state'], route.queryParams['code']);

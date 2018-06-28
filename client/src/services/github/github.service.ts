@@ -18,7 +18,7 @@ export class GitHubService {
     if (isNullOrUndefined(this._state)) {
       this._state = localStorage.getItem('gh:state');
       if (isNullOrUndefined(this._state)) {
-        this._state = 'abc123';
+        this._state = this._generateNonce(32);
         localStorage.setItem('gh:state', this._state);
       }
     }
@@ -68,6 +68,11 @@ export class GitHubService {
 
   public completeAuthentication(state: string, code: string): Promise<string> {
     return new Promise((resolve) => {
+      if (state !== this._state) {
+        localStorage.clear();
+        this.authenticated.next(false);
+        throw Error('Invalid state parameter');
+      }
       this._http.get(
         this._linkHelper.getGitHubAccessToken(code, state)
       ).subscribe((responseToken: any) => {
@@ -83,6 +88,15 @@ export class GitHubService {
 
   private _isAuthenticated() {
     return !isNullOrUndefined(localStorage.getItem('gh:token'));
+  }
+
+  private _generateNonce(length: number): string {
+    let nonce = ''
+    const charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    for(var i = 0; i < length; i++) {
+      nonce += charSet.charAt(Math.floor(Math.random() * charSet.length));
+    }
+    return btoa(nonce);
   }
 }
 
