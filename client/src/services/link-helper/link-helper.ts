@@ -14,7 +14,7 @@ export class LinkHelper {
   }
 
   public getDeploymentSummaries(login: string): string {
-    return `http://localhost:3001/api/${login}/deployments/summaries`;
+    return `http://localhost:3001/api/deployments/${login}/summaries`;
   }
 
   public login(): string {

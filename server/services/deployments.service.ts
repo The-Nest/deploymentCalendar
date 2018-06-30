@@ -32,18 +32,13 @@ export class DeploymentsService {
     return this._deploymentsRepository.insert(mappedDeployment).then(id => id);
   }
 
-  public async getSummaries(accessToken: string, login?: string, repo?: string) {
+  public async getSummaries(accessToken: string, owner: string) {
     const filter = { };
-    if (isNullOrUndefined(repo)) {
-      const repos = await this._gitHubService.getRepos(accessToken, login);
-      if (isNullOrUndefined(repos)) {
-        return repos;
-      }
-      filter['repo.name'] = { $in: repos };
+    const repos = await this._gitHubService.getRepos(accessToken, owner);
+    if (isNullOrUndefined(repos)) {
+      return repos;
     }
-    if (!isNullOrUndefined(repo)) {
-      filter['repo.name'] = repo;
-    }
+    filter['repo.name'] = { $in: repos };
     return this._deploymentsRepository.filter(
       filter,
       {
@@ -55,10 +50,6 @@ export class DeploymentsService {
         }
       }
     );
-  }
-
-  public getDeployments() {
-    return this._deploymentsRepository.filter();
   }
 
   public getDeployment(deploymentId: ObjectID) {

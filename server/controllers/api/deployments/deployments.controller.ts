@@ -7,45 +7,34 @@ import { BranchesControllerFactory } from './branches/branches.controller';
 import { DeploymentsService } from 'services/deployments.service';
 import { IntegrationBranchControllerFactory } from './integration-branch/integration-branch.controller';
 import { QAControllerFactory } from './qa/qa.controller';
+import { RepositoryMiddlewareFactory } from '../../../middleware/repository-middleware';
+import { GitHubService } from '../../../services/github.service';
+import { AccessMiddlewareFactory } from '../../../middleware/access-middleware';
+import { IGitHubClient } from 'types/clients/github.client';
 
 export function DeploymentsControllerFactory(
   deploymentsService: DeploymentsService,
-  paramMapper: (req: Request) => { owner: string, repo: string }): Router {
+  githubClient: IGitHubClient): Router {
   const router = Router({ mergeParams: true });
-  const resourceRoute = '/deployments';
+  const ownerRoute = '/:owner';
+  const repoRoute = `${ownerRoute}/:repo`;
 
-  router.use(`${resourceRoute}/:id/integration-branch`, IntegrationBranchControllerFactory(deploymentsService.integrationBranch));
-  router.use(`${resourceRoute}/:id/branches`, BranchesControllerFactory(deploymentsService.branches));
-  router.use(`${resourceRoute}/:id/qa`, QAControllerFactory(deploymentsService.qa));
-
-  router.post(
-    resourceRoute,
-    async (req: Request, res: Response, next: NextFunction) => {
-      const authHeader = req.headers['authorization'] as string;
-      return deploymentsService.addDeployment(req.body, authHeader).then(id => res.send(id)).catch(next);
-    }
-  );
+  router.use(ownerRoute, AccessMiddlewareFactory(githubClient));
 
   router.get(
-    `${resourceRoute}/summaries`,
+    `${ownerRoute}/summaries`,
     (req: Request, res: Response, next: NextFunction) => {
       const authHeader = req.headers['authorization'] as string;
-      const paramMap = paramMapper(req);
-      deploymentsService.getSummaries(authHeader, paramMap.owner, paramMap.repo)
+      const { owner } = req.params;
+      deploymentsService.getSummaries(authHeader, owner)
         .then((summaries: IDeploymentSummary[]) => res.send(summaries))
         .catch(next);
     }
   );
 
   router.get(
-    resourceRoute,
-    (req: Request, res: Response, next: NextFunction) => deploymentsService.getDeployments()
-      .then((deployments: IDeployment[]) => res.send(deployments))
-      .catch(next)
-  );
-
-  router.get(
-    `${resourceRoute}/:id`,
+    `${repoRoute}/:id`,
+    AccessMiddlewareFactory(githubClient),
     (req: Request, res: Response, next: NextFunction) => {
       const { id } = req.params;
       const oid = validateObjectId(id, next);
@@ -59,8 +48,22 @@ export function DeploymentsControllerFactory(
     }
   );
 
+  router.use(repoRoute, AccessMiddlewareFactory(githubClient, ['WRITE', 'ADMIN']));
+
+  router.use(`${repoRoute}/:id/integration-branch`, IntegrationBranchControllerFactory(deploymentsService.integrationBranch));
+  router.use(`${repoRoute}/:id/branches`, BranchesControllerFactory(deploymentsService.branches));
+  router.use(`${repoRoute}/:id/qa`, QAControllerFactory(deploymentsService.qa));
+
+  router.post(
+    repoRoute,
+    async (req: Request, res: Response, next: NextFunction) => {
+      const authHeader = req.headers['authorization'] as string;
+      return deploymentsService.addDeployment(req.body, authHeader).then(id => res.send(id)).catch(next);
+    }
+  );
+
   router.patch(
-    `${resourceRoute}/:id`,
+    `${repoRoute}/:id`,
     (req: Request, res: Response, next: NextFunction) => {
       const { id } = req.params;
       const oid = validateObjectId(id, next);
@@ -68,7 +71,7 @@ export function DeploymentsControllerFactory(
     });
 
   router.delete(
-    `${resourceRoute}/:id`,
+    `${repoRoute}/:id`,
     (req: Request, res: Response, next: NextFunction) => {
       const oid = validateObjectId(req.params.id, next);
       deploymentsService.deleteDeployment(oid)
@@ -77,7 +80,7 @@ export function DeploymentsControllerFactory(
     });
 
   router.delete(
-    `${resourceRoute}/:id/owner`,
+    `${repoRoute}/:id/owner`,
     (req: Request, res: Response, next: NextFunction) => {
       const oid = validateObjectId(req.params.id, next);
       deploymentsService.removeOwner(oid)
@@ -86,7 +89,7 @@ export function DeploymentsControllerFactory(
     });
 
   router.post(
-    `${resourceRoute}/:id/owner`,
+    `${repoRoute}/:id/owner`,
     (req: Request, res: Response, next: NextFunction) => {
       const oid = validateObjectId(req.params.id, next);
       const ownerId = validateObjectId(req.body.id, next);

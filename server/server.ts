@@ -21,7 +21,6 @@ import { MembersRepository } from './repositories/members.repository';
 import { GitHubControllerFactory } from './controllers/api/github/github.controller';
 import { GitHubService } from './services/github.service';
 import { LoginControllerFactory } from './controllers/api/login/login.controller';
-import { RepositoryMiddlewareFactory } from './middleware/repository-middleware';
 
 async function init() {
   dotenv.config();
@@ -39,30 +38,32 @@ async function init() {
 
   const app: express.Application = express();
   const apiRouter: express.Router = express.Router();
-  const ownerRouter: express.Router = express.Router();
-  const repoRouter: express.Router = express.Router();
+  // const ownerRouter: express.Router = express.Router();
+  // const repoRouter: express.Router = express.Router();
 
-  const paramMapper = (request: express.Request) => ({ owner: request.params.owner, repo: request.params.repo });
+  // const paramMapper = (request: express.Request) => ({ owner: request.params.owner, repo: request.params.repo });
 
-  const apiControllers = [
-    GitHubControllerFactory(githubService),
-    DeploymentsControllerFactory(deploymentsService, paramMapper),
-    MembersControllerFactory(membersService)
-  ];
+  // const apiControllers = [
+  //   GitHubControllerFactory(githubService),
+  //   DeploymentsControllerFactory(deploymentsService, paramMapper),
+  //   MembersControllerFactory(membersService)
+  // ];
   app.use(cors());
   app.use(bodyParser.json());
   app.use(express.static(path.join(__dirname, '../client')));
   app.use('/api/login', LoginControllerFactory(githubService, membersService));
 
   apiRouter.use('/', ApiAuthenticationHandlerFactory(githubService));
-  ownerRouter.use('/:owner', apiControllers);
-  repoRouter.use(
-    '/:owner/:repo',
-    [
-      RepositoryMiddlewareFactory(githubService, paramMapper),
-      ...apiControllers
-    ]);
-  apiRouter.use(ownerRouter, repoRouter);
+  apiRouter.use('/deployments', DeploymentsControllerFactory(deploymentsService, gitHubClient));
+  apiRouter.use('/members', MembersControllerFactory(membersService));
+  // ownerRouter.use('/:owner', apiControllers);
+  // repoRouter.use(
+  //   '/:owner/:repo',
+  //   [
+  //     RepositoryMiddlewareFactory(githubService, paramMapper),
+  //     ...apiControllers
+  //   ]);
+  // apiRouter.use(ownerRouter, repoRouter);
   apiRouter.use('/*', (req: express.Request, res: express.Response) => res.sendStatus(404));
   app.use('/api', apiRouter);
   app.use('*', AppController);
