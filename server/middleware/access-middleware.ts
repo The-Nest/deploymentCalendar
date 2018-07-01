@@ -28,8 +28,13 @@ export function AccessMiddlewareFactory(gitHubClient: IGitHubClient, repoScopes 
     }
     gitHubClient.graphQLRequest(query, authHeader).then((resp) => {
       console.log(resp);
-      if (!isNullOrUndefined(resp.errors)) {
-        // handle errors...
+      if (!isNullOrUndefined(resp.errors) && resp.errors.length > 0) {
+        if (resp.errors[0].type === 'UNAUTHORIZED') {
+          res.sendStatus(403);
+          return;
+        }
+        res.sendStatus(500);
+        return;
       }
       const data = resp.data;
       if (isNullOrUndefined(data.repositoryOwner)) {
