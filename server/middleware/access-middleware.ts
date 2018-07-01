@@ -7,7 +7,6 @@ import { IGitHubClient } from 'types/clients/github.client';
 export function AccessMiddlewareFactory(gitHubClient: IGitHubClient, repoScopes = ['READ']) {
   return (req: Request, res: Response, next: NextFunction) => {
     const { owner, repo } = req.params;
-    console.log(owner, repo);
     const authHeader = req.headers['authorization'] as string;
     const includeRepo = !isNullOrUndefined(repo);
 
@@ -27,9 +26,9 @@ export function AccessMiddlewareFactory(gitHubClient: IGitHubClient, repoScopes 
       }`;
     }
     gitHubClient.graphQLRequest(query, authHeader).then((resp) => {
-      console.log(resp);
       if (!isNullOrUndefined(resp.errors) && resp.errors.length > 0) {
         if (resp.errors[0].type === 'UNAUTHORIZED') {
+          // third-party read access has not been granted for the queried organization
           res.sendStatus(403);
           return;
         }

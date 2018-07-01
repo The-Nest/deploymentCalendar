@@ -7,7 +7,6 @@ import { BranchesControllerFactory } from './branches/branches.controller';
 import { DeploymentsService } from 'services/deployments.service';
 import { IntegrationBranchControllerFactory } from './integration-branch/integration-branch.controller';
 import { QAControllerFactory } from './qa/qa.controller';
-import { RepositoryMiddlewareFactory } from '../../../middleware/repository-middleware';
 import { GitHubService } from '../../../services/github.service';
 import { AccessMiddlewareFactory } from '../../../middleware/access-middleware';
 import { IGitHubClient } from 'types/clients/github.client';

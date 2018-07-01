@@ -1,5 +1,6 @@
 import { IGitHubClient, IGraphQLResponse } from '../types/clients/github.client';
 import { isNullOrUndefined } from 'util';
+import { IRepository } from '../../shared/types/deployment/repository';
 
 export class GitHubService {
   constructor(private _gitHubClient: IGitHubClient) { }
@@ -17,12 +18,43 @@ export class GitHubService {
     });
   }
 
-  public getRepo(owner: string, repo: string, authToken: string) {
-    return this._gitHubClient.restRequest(
-      'GET',
-      `/repos/${owner}/${repo}`,
-      authToken,
-    ).then(response => response.data);
+  public getRepo(owner: string, repo: string, accessToken: string): Promise<IRepository> {
+    return this._gitHubClient.graphQLRequest(
+      `query {
+        repositoryOwner(login: "${owner}") {
+          repository(name: "${repo}") {
+            name,
+            owner {
+              login
+            }
+          }
+        }
+      }`,
+      accessToken
+    ).then(response => ({
+      name: response.data.repositoryOwner.repository.name,
+      owner: response.data.repositoryOwner.repository.owner.login
+    } as IRepository));
+  }
+
+  public getOwnerType(owner: string, accessToken: string): Promise<string> {
+    return this._gitHubClient.graphQLRequest(
+      `query {
+        repositoryOwner(login: "${owner}") {
+          type: __typename
+        }
+      }`,
+      accessToken
+    ).then(response => {
+      if (isNullOrUndefined(response.data.repositoryOwner)) {
+        return null;
+      }
+      return response.data.repositoryOwner.type;
+    });
+  }
+
+  public _getRepo(owner: string, repo: string, accessToken: string) {
+
   }
 
   public getRepos(accessToken: string, owner?: string): Promise<string[]> {
@@ -52,7 +84,6 @@ export class GitHubService {
         }
       }`;
     }
-    // TODO: handle when an organization has not enabled 3rd party access
     return this._gitHubClient.graphQLRequest(query, accessToken)
       .then((graphQLResponse: IGraphQLResponse) => {
         if (!isNullOrUndefined(graphQLResponse.errors)) {
@@ -62,31 +93,8 @@ export class GitHubService {
       });
   }
 
-  public getScope(login: string, accessToken: string) {
-    this._gitHubClient.graphQLRequest(
-      `
-      query {
-        viewer {
-          public: repositories(affiliations: [COLLABORATOR, OWNER], first: 50, privacy: PUBLIC) {
-            nodes {
-              name,
-              isPrivate
-            }
-          },
-          private: repositories(affiliations: [COLLABORATOR, OWNER], first: 50, privacy: PRIVATE) {
-            nodes {
-              name,
-              isPrivate
-            }
-          }
-        }
-      }
-      `,
-      accessToken
-    ).then(response => {
-      return response;
-    });
-  }
+
+// Authentication actions
 
   public getAccessToken(code: string, state: string) {
     return this._gitHubClient.getAccessToken(
