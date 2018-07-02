@@ -1,21 +1,30 @@
 import { IGitHubClient, IGraphQLResponse } from '../types/clients/github.client';
 import { isNullOrUndefined } from 'util';
 import { IRepository } from '../../shared/types/deployment/repository';
+import { ITeam } from '../../shared/types/deployment/team';
 
 export class GitHubService {
   constructor(private _gitHubClient: IGitHubClient) { }
 
-  public getBranch(owner: string, repo: string, branch: string, authToken: string) {
+  public getBranch(owner: string, repo: string, branch: string, accessToken: string) {
     return this._gitHubClient.restRequest(
       'GET',
       `/repos/${owner}/${repo}/branches/${branch}`,
-      authToken
+      accessToken
     ).then(response => {
       if (response.error) {
-        return undefined;
+        return null;
       }
       return response.data;
     });
+  }
+
+  public getTeam(teamId: number, accessToken: string) {
+    return this._gitHubClient.restRequest(
+      'GET',
+      `/teams/${teamId}`,
+      accessToken
+    ).then(response => response.statusCode === 200 ? ({id: response.data.id, name: response.data.name} as ITeam) : null);
   }
 
   public getRepo(owner: string, repo: string, accessToken: string): Promise<IRepository> {

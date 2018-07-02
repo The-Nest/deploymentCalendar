@@ -5,21 +5,22 @@ import { IDeploymentsRepository } from 'types/repositories/deployments.repositor
 import { IGitHubClient } from 'types/clients/github.client';
 import { IBranchPayload } from '../../shared/types/deployment/payloads/branch';
 import { IBranch } from '../../shared/types/deployment/branch';
+import { GitHubService } from './github.service';
 
 export class IntegrationBranchService {
   constructor(
     private _deploymentsRepo: IDeploymentsRepository,
-    private _gitHubClient: IGitHubClient
+    private _gitHubService: GitHubService
   ) { }
 
-  public async addIntegrationBranch(deploymentId: ObjectID, branch: IBranchPayload) {
+  public async addIntegrationBranch(deploymentId: ObjectID, branch: IBranchPayload, accessToken: string) {
     const { repo } = await this._deploymentsRepo.find(
       { _id: deploymentId },
       { projection: {
         repo: true
       }
     });
-    const branchData = await this._gitHubClient.getBranch(repo.owner, repo.name, branch.name);
+    const branchData = await this._gitHubService.getBranch(repo.owner, repo.name, branch.name, accessToken);
     const mappedBranch = {
       name: branchData.name,
       deleted: false

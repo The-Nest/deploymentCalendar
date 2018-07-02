@@ -2,33 +2,11 @@ import * as https from 'https';
 import { isUndefined, isNullOrUndefined } from 'util';
 
 import { IGitHubClient, IRestResponse, IGraphQLResponse } from '../../types/clients/github.client';
-import { MemoryCache } from './memory-cache';
 
 
 export class GitHubClient implements IGitHubClient {
 
   constructor(private _userAgent: string) { }
-
-  public async getTeam(teamId: number) {
-    if (teamId === 1) {
-      return {
-        name: 'Eagle',
-        id: 1
-      };
-    }
-    throw new Error('Team not found');
-  }
-
-  public async getBranch(owner: string, repo: string, branch: string) {
-    if (owner === 'the-nest' && repo === 'spizaetus') {
-      return {
-        owner: owner,
-        repo: repo,
-        name: branch
-      };
-    }
-    throw new Error('Branch not found');
-  }
 
   public async restRequest(method: string, url: string, accessToken: string, body?: any): Promise<IRestResponse> {
     return this._jsonRequest(method, url, accessToken, body).then((apiResponse: IGitHubAPIResponse) => {

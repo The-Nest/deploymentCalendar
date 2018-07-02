@@ -3,13 +3,13 @@ import { isNullOrUndefined } from 'util';
 
 import { IBranchPayload } from '../../shared/types/deployment/payloads/branch';
 import { IBranch } from '../../shared/types/deployment/branch';
-import { IGitHubClient } from 'types/clients/github.client';
 import { IDeploymentsRepository } from 'types/repositories/deployments.repository';
+import { GitHubService } from './github.service';
 
 export class BranchesService {
   constructor(
     private _deploymentsRepo: IDeploymentsRepository,
-    private _gitHubClient: IGitHubClient) { }
+    private _gitHubService: GitHubService) { }
 
   public async getBranches(deploymentId: ObjectID): Promise<IBranch[]> {
     return this._deploymentsRepo.find(
@@ -18,7 +18,7 @@ export class BranchesService {
         .then(deployment => deployment.branches);
   }
 
-  public async addBranch(deploymentId: ObjectID, branch: IBranchPayload): Promise<number> {
+  public async addBranch(deploymentId: ObjectID, branch: IBranchPayload, accessToken: string): Promise<number> {
     // need to grab repo data for deployment so we can get data from GitHub
     const { repo } = await this._deploymentsRepo.find(
       { _id: deploymentId },
@@ -26,7 +26,7 @@ export class BranchesService {
         repo: true
       }
     });
-    const branchData = await this._gitHubClient.getBranch(repo.owner, repo.name, branch.name);
+    const branchData = await this._gitHubService.getBranch(repo.owner, repo.name, branch.name, accessToken);
     const mappedBranch = {
       name: branchData.name,
       deleted: false

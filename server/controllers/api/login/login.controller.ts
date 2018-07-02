@@ -1,9 +1,8 @@
 import { GitHubService } from 'services/github.service';
 import { Router, NextFunction, Response, Request } from 'express';
 import { isNullOrUndefined } from 'util';
-import { MembersService } from 'services/members.service';
 
-export function LoginControllerFactory(gitHubService: GitHubService, membersService: MembersService) {
+export function LoginControllerFactory(gitHubService: GitHubService) {
   const router = Router();
   router.use(
     '/oauth',
@@ -17,9 +16,7 @@ export function LoginControllerFactory(gitHubService: GitHubService, membersServ
       const authHeader = req.headers['authorization'] as string;
       gitHubService.getAuthorizationForToken(authHeader).then(async (result) => {
         if (isNullOrUndefined(result.error)) {
-          const member = await membersService.getMemberByGitHubId(result.data.user.id);
           res.send({
-            member: member,
             login: result.data.user
           });
           return;

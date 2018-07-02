@@ -17,16 +17,15 @@ export class DeploymentsService {
 
   constructor (
     private _deploymentsRepository: IDeploymentsRepository,
-    private _gitHubClient: IGitHubClient,
     private _gitHubService: GitHubService) {
-    this.branches = new BranchesService(_deploymentsRepository, _gitHubClient);
-    this.integrationBranch = new IntegrationBranchService(_deploymentsRepository, _gitHubClient);
+    this.branches = new BranchesService(_deploymentsRepository, _gitHubService);
+    this.integrationBranch = new IntegrationBranchService(_deploymentsRepository, _gitHubService);
     this.qa = new QAService(_deploymentsRepository, _gitHubService);
   }
 
   public async addDeployment(deployment: IDeploymentPayload, accessToken: string) {
     const mappedDeployment =
-      await mapDeploymentPayloadToDocument(deployment, this._gitHubClient, this._gitHubService, accessToken);
+      await mapDeploymentPayloadToDocument(deployment, this._gitHubService, accessToken);
     return this._deploymentsRepository.insert(mappedDeployment).then(id => id);
   }
 
@@ -58,16 +57,19 @@ export class DeploymentsService {
     return this._deploymentsRepository.delete({ _id: deploymentId });
   }
 
-  public updateDeployment(deploymentId: ObjectID, deployment: IDeploymentPayload) {
+  public updateDeployment(deploymentId: ObjectID, deployment: IDeploymentPayload, accessToken: string) {
     const patch = {};
     if (!isNullOrUndefined(deployment.name) && deployment.name.length > 0) {
       patch['name'] = deployment.name;
     }
     if (!isNullOrUndefined(deployment.teamId)) {
-      patch['team'] = this._gitHubClient.getTeam(deployment.teamId);
+      patch['team'] = this._gitHubService.getTeam(deployment.teamId, accessToken);
     }
     if (!isNullOrUndefined(deployment.dateTime)) {
       patch['dateTime'] = deployment.dateTime;
+    }
+    if (!isNullOrUndefined(deployment.owner)) {
+      patch['owner'] = deployment.owner;
     }
     return this._deploymentsRepository.update({ $set: patch });
   }

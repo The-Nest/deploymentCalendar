@@ -1,7 +1,4 @@
 export interface IGitHubClient {
-  getTeam(teamId: number);
-  getBranch(owner: string, repo: string, branch: string);
-
   restRequest(method: string, url: string, accessToken: string, body?: any): Promise<IRestResponse>;
   graphQLRequest(query: string, accessToken: string): Promise<IGraphQLResponse>;
 

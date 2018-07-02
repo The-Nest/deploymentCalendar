@@ -7,7 +7,6 @@ import { BranchesControllerFactory } from './branches/branches.controller';
 import { DeploymentsService } from 'services/deployments.service';
 import { IntegrationBranchControllerFactory } from './integration-branch/integration-branch.controller';
 import { QAControllerFactory } from './qa/qa.controller';
-import { GitHubService } from '../../../services/github.service';
 import { AccessMiddlewareFactory } from '../../../middleware/access-middleware';
 import { IGitHubClient } from 'types/clients/github.client';
 
@@ -65,8 +64,9 @@ export function DeploymentsControllerFactory(
     `${repoRoute}/:id`,
     (req: Request, res: Response, next: NextFunction) => {
       const { id } = req.params;
+      const authHeader = req.headers['authorization'] as string;
       const oid = validateObjectId(id, next);
-      deploymentsService.updateDeployment(oid, req.body).then((upsertedCount) => res.sendStatus(200));
+      deploymentsService.updateDeployment(oid, req.body, authHeader).then((upsertedCount) => res.sendStatus(200));
     });
 
   router.delete(
@@ -75,25 +75,6 @@ export function DeploymentsControllerFactory(
       const oid = validateObjectId(req.params.id, next);
       deploymentsService.deleteDeployment(oid)
         .then((deleteCount: number) => res.send(deleteCount))
-        .catch(next);
-    });
-
-  router.delete(
-    `${repoRoute}/:id/owner`,
-    (req: Request, res: Response, next: NextFunction) => {
-      const oid = validateObjectId(req.params.id, next);
-      deploymentsService.removeOwner(oid)
-        .then((deleteCount: number) => res.sendStatus(200))
-        .catch(next);
-    });
-
-  router.post(
-    `${repoRoute}/:id/owner`,
-    (req: Request, res: Response, next: NextFunction) => {
-      const oid = validateObjectId(req.params.id, next);
-      const ownerId = validateObjectId(req.body.id, next);
-      deploymentsService.setOwner(oid, ownerId)
-        .then((upsertCount: number) => res.sendStatus(200))
         .catch(next);
     });
 

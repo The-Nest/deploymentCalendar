@@ -1,7 +1,6 @@
 import { Router, NextFunction, Response, Request } from 'express';
 import { ObjectID } from 'mongodb';
 
-import { IBranch } from '../../../../../shared/types/deployment/branch';
 import { IBranchPayload } from '../../../../../shared/types/deployment/payloads/branch';
 import { BranchesService } from 'services/branches.service';
 
@@ -13,7 +12,8 @@ export function BranchesControllerFactory(branchesService: BranchesService) {
   });
 
   router.post('/', async (req: Request, res: Response, next: NextFunction) => {
-    branchesService.addBranch(new ObjectID(req.params.id), req.body).then((upsertCount) => res.sendStatus(200));
+    const authHeader = req.headers['authorization'] as string;
+    branchesService.addBranch(new ObjectID(req.params.id), req.body, authHeader).then((upsertCount) => res.sendStatus(200));
   });
 
   router.delete('/:branchName', async (req: Request, res: Response, next: NextFunction) => {
