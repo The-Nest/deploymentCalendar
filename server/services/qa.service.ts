@@ -1,27 +1,36 @@
 import { ObjectID } from 'mongodb';
 
 import { IDeploymentsRepository } from 'types/repositories/deployments.repository';
-import { IMembersRepository } from 'types/repositories/members.repository';
-import { IMember } from '../../shared/types/member/member';
+import { GitHubService } from './github.service';
 
 export class QAService {
   constructor(
     private _deploymentsRepo: IDeploymentsRepository,
-    private _membersRepo: IMembersRepository
+    private _gitHubService: GitHubService
   ) { }
 
-  public addQA(deploymentId: ObjectID, qaId: ObjectID) {
-    return this._membersRepo.find({ _id: qaId }).then((qa: IMember) => {
+  public async addQA(deploymentId: ObjectID, qaLogin: string, accessToken: string): Promise<number> {
+    const { repo } = await this._deploymentsRepo.find(
+      { _id: deploymentId },
+      {
+        projection: {
+          repo: true
+        }
+      }
+    );
+    if (this._gitHubService.isCollaborator(repo.owner, repo.name, qaLogin, accessToken)) {
       return this._deploymentsRepo.update(
-        { $addToSet: { qa: qa } },
+        { $addToSet: { qa: qaLogin } },
         { _id: deploymentId }
       );
-    });
+    }
+    return 0;
   }
 
-  public removeQA(deploymentId: ObjectID, qaId: ObjectID) {
+  public removeQA(deploymentId: ObjectID, qaLogin: string) {
     return this._deploymentsRepo.update(
-      { $pull: { qa: { _id: qaId } } }
+      { $pull: { qa: qaLogin } },
+      { _id: deploymentId }
     );
   }
 }

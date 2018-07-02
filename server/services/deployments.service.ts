@@ -5,7 +5,6 @@ import { BranchesService } from './branches.service';
 import { IGitHubClient } from 'types/clients/github.client';
 import { IDeploymentsRepository } from '../types/repositories/deployments.repository';
 import { mapDeploymentPayloadToDocument } from '../mappers/deployment-mappers';
-import { IMembersRepository } from 'types/repositories/members.repository';
 import { IntegrationBranchService } from './integration-branch.service';
 import { isNullOrUndefined } from 'util';
 import { QAService } from './qa.service';
@@ -18,17 +17,16 @@ export class DeploymentsService {
 
   constructor (
     private _deploymentsRepository: IDeploymentsRepository,
-    private _membersRepository: IMembersRepository,
     private _gitHubClient: IGitHubClient,
     private _gitHubService: GitHubService) {
     this.branches = new BranchesService(_deploymentsRepository, _gitHubClient);
     this.integrationBranch = new IntegrationBranchService(_deploymentsRepository, _gitHubClient);
-    this.qa = new QAService(_deploymentsRepository, _membersRepository);
+    this.qa = new QAService(_deploymentsRepository, _gitHubService);
   }
 
   public async addDeployment(deployment: IDeploymentPayload, accessToken: string) {
     const mappedDeployment =
-      await mapDeploymentPayloadToDocument(deployment, this._gitHubClient, this._gitHubService, accessToken, this._membersRepository);
+      await mapDeploymentPayloadToDocument(deployment, this._gitHubClient, this._gitHubService, accessToken);
     return this._deploymentsRepository.insert(mappedDeployment).then(id => id);
   }
 
@@ -58,21 +56,6 @@ export class DeploymentsService {
 
   public deleteDeployment(deploymentId: ObjectID) {
     return this._deploymentsRepository.delete({ _id: deploymentId });
-  }
-
-  public async setOwner(deploymentId: ObjectID, ownerMemberId: ObjectID) {
-    const owner = await this._membersRepository.find({ _id: ownerMemberId });
-    return this._deploymentsRepository.update(
-      { $set: { owner: owner } },
-      { _id: deploymentId }
-    );
-  }
-
-  public removeOwner(deploymentId: ObjectID) {
-    return this._deploymentsRepository.update(
-      { $unset: { owner: null } },
-      { _id: deploymentId }
-    );
   }
 
   public updateDeployment(deploymentId: ObjectID, deployment: IDeploymentPayload) {

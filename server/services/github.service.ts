@@ -37,6 +37,19 @@ export class GitHubService {
     } as IRepository));
   }
 
+  public isCollaborator(owner: string, repo: string, collaboratorLogin: string, accessToken: string): Promise<boolean> {
+    return this._gitHubClient.restRequest(
+      'GET',
+      `/repos/${owner}/${repo}/collaborators/${collaboratorLogin}`,
+      accessToken
+    ).then(response => {
+      if (response.statusCode === 204) {
+        return true;
+      }
+      return false;
+    });
+  }
+
   public getOwnerType(owner: string, accessToken: string): Promise<string> {
     return this._gitHubClient.graphQLRequest(
       `query {
@@ -51,10 +64,6 @@ export class GitHubService {
       }
       return response.data.repositoryOwner.type;
     });
-  }
-
-  public _getRepo(owner: string, repo: string, accessToken: string) {
-
   }
 
   public getRepos(accessToken: string, owner?: string): Promise<string[]> {

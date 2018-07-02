@@ -1,7 +1,6 @@
 import { ObjectID } from 'mongodb';
 
 import { IGitHubClient } from '../types/clients/github.client';
-import { IMembersRepository } from 'types/repositories/members.repository';
 import { IDeploymentPayload } from '../../shared/types/deployment/payloads/deployment';
 import { IDeployment } from '../../shared/types/deployment/deployment';
 import { IDeploymentMember } from '../../shared/types/deployment/member';
@@ -13,8 +12,7 @@ export async function mapDeploymentPayloadToDocument(
   body: IDeploymentPayload,
   gitHubClient: IGitHubClient,
   gitHubService: GitHubService,
-  accessToken: string,
-  membersRepo: IMembersRepository): Promise<IDeployment> {
+  accessToken: string): Promise<IDeployment> {
   return {
     name: _validateName(body.name),
     repo: await gitHubService.getRepo(body.repo.owner, body.repo.name, accessToken),

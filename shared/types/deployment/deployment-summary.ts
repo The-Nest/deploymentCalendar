@@ -4,6 +4,6 @@ import { IDeploymentMember } from './member';
 export interface IDeploymentSummary {
   name: string;
   dateTime: Date;
-  owner: IDeploymentMember;
+  owner: string;
   team: ITeam;
 }

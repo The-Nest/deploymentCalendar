@@ -6,4 +6,5 @@ export interface IDeploymentPayload {
     name: string;
   };
   dateTime: Date;
+  owner: string;
 }
