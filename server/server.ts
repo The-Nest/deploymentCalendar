@@ -16,24 +16,30 @@ import { DeploymentsService } from './services/deployments.service';
 import { DeploymentsRepository } from './repositories/deployments.repository';
 import { GitHubService } from './services/github.service';
 import { LoginControllerFactory } from './controllers/api/login/login.controller';
+import { MockDeploymentsControllerFactory } from './controllers/api/deployments/mock-deployments.controller';
 
 async function init() {
   dotenv.config();
-  const gitHubClient = new GitHubClient('the-perch');
-  const mongoClient = await(new MongoClient(process.env.COSMOSDB_KEY).connect());
-
-  const deploymentsRepository = new DeploymentsRepository(
-    new MongoCollectionClient<IDeployment>(mongoClient.db('perch').collection('deployments')));
-  const githubService = new GitHubService(gitHubClient);
-  const deploymentsService = new DeploymentsService(deploymentsRepository, githubService);
   const app: express.Application = express();
   const apiRouter: express.Router = express.Router();
+  const gitHubClient = new GitHubClient('the-perch');
+
+  const githubService = new GitHubService(gitHubClient);
+
   app.use(cors());
   app.use(bodyParser.json());
   app.use(express.static(path.join(__dirname, '../client')));
   app.use('/api/login', LoginControllerFactory(githubService));
-  apiRouter.use('/', ApiAuthenticationHandlerFactory(githubService));
-  apiRouter.use('/deployments', DeploymentsControllerFactory(deploymentsService, gitHubClient));
+  if (process.env.MOCK !== 'true') {
+    const mongoClient = await(new MongoClient(process.env.COSMOSDB_KEY).connect());
+    const deploymentsRepository = new DeploymentsRepository(
+      new MongoCollectionClient<IDeployment>(mongoClient.db('perch').collection('deployments')));
+    const deploymentsService = new DeploymentsService(deploymentsRepository, githubService);
+    apiRouter.use('/', ApiAuthenticationHandlerFactory(githubService));
+    apiRouter.use('/deployments', DeploymentsControllerFactory(deploymentsService, gitHubClient));
+  } else {
+    apiRouter.use('/deployments', MockDeploymentsControllerFactory());
+  }
   apiRouter.use('/*', (req: express.Request, res: express.Response) => res.sendStatus(404));
   app.use('/api', apiRouter);
   app.use('*', AppController);
