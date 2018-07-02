@@ -7,7 +7,8 @@ export function IntegrationBranchControllerFactory(integrationBranchService: Int
   const router: Router = Router({ mergeParams: true });
 
   router.post('/', (req: Request, res: Response, next: NextFunction) => {
-    integrationBranchService.addIntegrationBranch(new ObjectID(req.params.id), req.body)
+    const authHeader = req.headers['authorization'] as string;
+    integrationBranchService.addIntegrationBranch(new ObjectID(req.params.id), req.body, authHeader)
       .then((upsertCount) => res.sendStatus(200));
   });
 

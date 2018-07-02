@@ -7,11 +7,13 @@ export function QAControllerFactory(qaService: QAService) {
   const router: Router = Router({ mergeParams: true });
 
   router.post('/', (req: Request, res: Response, next: NextFunction) => {
-    return qaService.addQA(new ObjectID(req.params.id), new ObjectID(req.body.id)).then(() => res.sendStatus(200));
+    const authHeader = req.headers['authorization'] as string;
+    return qaService.addQA(new ObjectID(req.params.id), req.body.qaLogin, authHeader).then(() => res.sendStatus(200));
   });
 
-  router.delete('/:qaid', (req: Request, res: Response, next: NextFunction) => {
-    return qaService.removeQA(new ObjectID(req.params.id), new ObjectID(req.params.qaid)).then(() => res.sendStatus(200));
+  router.delete('/:qaLogin', (req: Request, res: Response, next: NextFunction) => {
+    const authHeader = req.headers['authorization'] as string;
+    return qaService.removeQA(new ObjectID(req.params.id), req.params.qaLogin).then(() => res.sendStatus(200));
   });
 
   return router;

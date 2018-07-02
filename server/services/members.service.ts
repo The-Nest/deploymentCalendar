@@ -19,6 +19,10 @@ export class MembersService {
     return this._membersRepository.find({ _id: memberId });
   }
 
+  public getMemberByGitHubId(gitHubId: number) {
+    return this._membersRepository.find({ gitHubUserId: gitHubId });
+  }
+
   public getMemberSummary(memberId: ObjectID): Promise<IDeploymentMember> {
     return this._membersRepository.find(
       { _id: memberId },
