@@ -2,10 +2,8 @@ import { ObjectID } from 'mongodb';
 import { isNullOrUndefined } from 'util';
 
 import { IBranchPayload } from '../../shared/types/deployment/payloads/branch';
-import { IGitHubClient } from 'types/clients/github.client';
 import { IBranch } from '../../shared/types/deployment/branch';
-import { PullRequestStatus } from '../../shared/enums/deployment/pull-request-status';
-import { IMember } from '../../shared/types/member/member';
+import { IGitHubClient } from 'types/clients/github.client';
 import { IDeploymentsRepository } from 'types/repositories/deployments.repository';
 
 export class BranchesService {
@@ -51,10 +49,6 @@ export class BranchesService {
       .then(match => match.branches);
     const currentBranch = branches.find(b => b.name === branchName);
     currentBranch.deleted = isNullOrUndefined(branch.deleted) ? currentBranch.deleted : branch.deleted;
-    currentBranch.pullRequest = isNullOrUndefined(branch.pullRequest) ?
-      currentBranch.pullRequest :
-      { id: branch.pullRequest, status: PullRequestStatus.AwaitingApproval, assignee: {} as IMember };
-
     return this._deploymentsRepo.update( { $set: { branches: branches } }, { _id: deploymentId } );
   }
 }

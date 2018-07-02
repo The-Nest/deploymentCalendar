@@ -5,8 +5,6 @@ import { IDeploymentsRepository } from 'types/repositories/deployments.repositor
 import { IGitHubClient } from 'types/clients/github.client';
 import { IBranchPayload } from '../../shared/types/deployment/payloads/branch';
 import { IBranch } from '../../shared/types/deployment/branch';
-import { IMember } from '../../shared/types/member/member';
-import { PullRequestStatus } from '../../shared/enums/deployment/pull-request-status';
 
 export class IntegrationBranchService {
   constructor(
@@ -40,11 +38,6 @@ export class IntegrationBranchService {
     const patch = {};
     if (!isNullOrUndefined(branch.deleted)) {
       patch['integrationBranch.deleted'] = branch.deleted;
-    }
-    if (!isNullOrUndefined(branch.pullRequest)) {
-      patch['integrationBranch.pullRequest'] = {
-        id: branch.pullRequest, status: PullRequestStatus.AwaitingApproval, assignee: {} as IMember
-      };
     }
     return this._deploymentsRepo.update(
       { $set: patch },
